@@ -1,0 +1,228 @@
+export const featuredMovie = {
+  id: 1,
+  title: "Dune: Part Two",
+  tagline: "Long live the fighters.",
+  overview: "Follow the mythic journey of Paul Atreides as he unites with Chani and the Fremen while on a path of revenge against the conspirators who destroyed his family. Facing a choice between the love of his life and the fate of the known universe, Paul endeavors to prevent a terrible future only he can foresee.",
+  backdropUrl: "https://image.tmdb.org/t/p/original/xOMo8BRK7PfcJv9JCnx7s5hj0PX.jpg",
+  posterUrl: "https://image.tmdb.org/t/p/w500/8b8R8l88Qje9dn9OE8PY05Nxl1X.jpg",
+  rating: 8.4,
+  year: "2024",
+  runtime: "2h 46m",
+  genres: ["Science Fiction", "Adventure", "Drama"],
+};
+
+export const popularMovies = [
+  {
+    id: 1,
+    title: "Dune: Part Two",
+    posterUrl: "https://image.tmdb.org/t/p/w500/8b8R8l88Qje9dn9OE8PY05Nxl1X.jpg",
+    year: "2024",
+    rating: 8.4,
+  },
+  {
+    id: 2,
+    title: "Oppenheimer",
+    posterUrl: "https://image.tmdb.org/t/p/w500/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg",
+    year: "2023",
+    rating: 8.3,
+  },
+  {
+    id: 3,
+    title: "Poor Things",
+    posterUrl: "https://image.tmdb.org/t/p/w500/kCGlIMHnOm8JPXq3rXM6c5wMxcT.jpg",
+    year: "2023",
+    rating: 8.0,
+  },
+  {
+    id: 4,
+    title: "The Holdovers",
+    posterUrl: "https://image.tmdb.org/t/p/w500/VHSzNBTwxV8vh7wylo7O9CLdac.jpg",
+    year: "2023",
+    rating: 7.9,
+  },
+  {
+    id: 5,
+    title: "Past Lives",
+    posterUrl: "https://image.tmdb.org/t/p/w500/k3waqVXSnvCZWfJYNtdamTgTtTA.jpg",
+    year: "2023",
+    rating: 7.8,
+  },
+  {
+    id: 6,
+    title: "Killers of the Flower Moon",
+    posterUrl: "https://image.tmdb.org/t/p/w500/dB6Krk806zeqd0YNp2ngQ9zXteH.jpg",
+    year: "2023",
+    rating: 7.7,
+  },
+  {
+    id: 7,
+    title: "The Zone of Interest",
+    posterUrl: "https://image.tmdb.org/t/p/w500/hUu9zyZmDd8VZegKi1iK1Vk0RYS.jpg",
+    year: "2023",
+    rating: 7.6,
+  },
+];
+
+export const recentlyReviewed = [
+  {
+    id: 8,
+    title: "Barbie",
+    posterUrl: "https://image.tmdb.org/t/p/w500/iuFNMS8U5cb6xfzi51Dbkovj7vM.jpg",
+    year: "2023",
+    rating: 7.4,
+  },
+  {
+    id: 9,
+    title: "Anatomy of a Fall",
+    posterUrl: "https://image.tmdb.org/t/p/w500/kQs6keheMwCxJxrzV83VUwFtHkB.jpg",
+    year: "2023",
+    rating: 7.8,
+  },
+  {
+    id: 10,
+    title: "May December",
+    posterUrl: "https://image.tmdb.org/t/p/w500/vS5JLqPbLvVJHB1KLfNr2Z5XzXm.jpg",
+    year: "2023",
+    rating: 7.2,
+  },
+  {
+    id: 11,
+    title: "American Fiction",
+    posterUrl: "https://image.tmdb.org/t/p/w500/7wDc69WmBqoWEgRjxlBZIFjXMkT.jpg",
+    year: "2023",
+    rating: 7.6,
+  },
+  {
+    id: 12,
+    title: "All of Us Strangers",
+    posterUrl: "https://image.tmdb.org/t/p/w500/5lYsRiRKrlv5T4YCKsKjtJcCF4Y.jpg",
+    year: "2023",
+    rating: 7.9,
+  },
+  {
+    id: 13,
+    title: "Maestro",
+    posterUrl: "https://image.tmdb.org/t/p/w500/g2bR0Ky6dOkIZpmbcYrzqVVAwLI.jpg",
+    year: "2023",
+    rating: 7.0,
+  },
+  {
+    id: 14,
+    title: "The Boy and the Heron",
+    posterUrl: "https://image.tmdb.org/t/p/w500/f4oZTcfGrVTXKTWg157LXmELHwh.jpg",
+    year: "2023",
+    rating: 7.5,
+  },
+];
+
+export const mockReviews = [
+  {
+    id: "1",
+    user: {
+      name: "Alex Chen",
+      avatar: "https://i.pravatar.cc/150?img=1",
+      username: "alexc",
+    },
+    movie: {
+      title: "Dune: Part Two",
+      year: "2024",
+      posterUrl: "https://image.tmdb.org/t/p/w500/8b8R8l88Qje9dn9OE8PY05Nxl1X.jpg",
+    },
+    rating: 5,
+    content: "An absolute masterpiece of science fiction cinema. Denis Villeneuve has crafted something truly special here. The scale, the sound design, the performances - everything comes together to create an unforgettable experience. This is filmmaking at its finest.",
+    likes: 342,
+    comments: 28,
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 2),
+    liked: false,
+  },
+  {
+    id: "2",
+    user: {
+      name: "Sarah Mitchell",
+      avatar: "https://i.pravatar.cc/150?img=5",
+      username: "sarahm",
+    },
+    movie: {
+      title: "Poor Things",
+      year: "2023",
+      posterUrl: "https://image.tmdb.org/t/p/w500/kCGlIMHnOm8JPXq3rXM6c5wMxcT.jpg",
+    },
+    rating: 4.5,
+    content: "Yorgos Lanthimos delivers another visually stunning and thematically rich film. Emma Stone gives the performance of her career as Bella Baxter. The production design is unlike anything I've seen before. A feminist fable told with wit, style, and genuine heart.",
+    likes: 218,
+    comments: 15,
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 5),
+    liked: true,
+  },
+  {
+    id: "3",
+    user: {
+      name: "Marcus Johnson",
+      avatar: "https://i.pravatar.cc/150?img=8",
+      username: "marcusj",
+    },
+    movie: {
+      title: "Oppenheimer",
+      year: "2023",
+      posterUrl: "https://image.tmdb.org/t/p/w500/8Gxv8gSFCU0XGDykEGv7zR1n2ua.jpg",
+    },
+    rating: 5,
+    content: "Christopher Nolan's best film since The Dark Knight. The way he structures the narrative, cutting between timelines to build tension, is masterful. Cillian Murphy finally gets the lead role he deserves and absolutely owns it. The IMAX experience was overwhelming in the best way.",
+    likes: 567,
+    comments: 42,
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 12),
+    liked: false,
+  },
+];
+
+export const classicMovies = [
+  {
+    id: 15,
+    title: "2001: A Space Odyssey",
+    posterUrl: "https://image.tmdb.org/t/p/w500/ve72VxNqjGM69Uky4WTo2bK6rfq.jpg",
+    year: "1968",
+    rating: 8.3,
+  },
+  {
+    id: 16,
+    title: "Pulp Fiction",
+    posterUrl: "https://image.tmdb.org/t/p/w500/d5iIlFn5s0ImszYzBPb8JPIfbXD.jpg",
+    year: "1994",
+    rating: 8.9,
+  },
+  {
+    id: 17,
+    title: "The Godfather",
+    posterUrl: "https://image.tmdb.org/t/p/w500/3bhkrj58Vtu7enYsRolD1fZdja1.jpg",
+    year: "1972",
+    rating: 9.2,
+  },
+  {
+    id: 18,
+    title: "Blade Runner",
+    posterUrl: "https://image.tmdb.org/t/p/w500/63N9uy8nd9j7Eog2axPQ8lbr3Wj.jpg",
+    year: "1982",
+    rating: 8.1,
+  },
+  {
+    id: 19,
+    title: "Taxi Driver",
+    posterUrl: "https://image.tmdb.org/t/p/w500/ekstpH614fwDX8DUln1a2Opz0N8.jpg",
+    year: "1976",
+    rating: 8.2,
+  },
+  {
+    id: 20,
+    title: "Goodfellas",
+    posterUrl: "https://image.tmdb.org/t/p/w500/aKuFiU82s5ISJpGZp7YkIr3kCUd.jpg",
+    year: "1990",
+    rating: 8.7,
+  },
+  {
+    id: 21,
+    title: "The Shining",
+    posterUrl: "https://image.tmdb.org/t/p/w500/xazWoLealQwEgqZ89MLZklLZD3k.jpg",
+    year: "1980",
+    rating: 8.4,
+  },
+];
