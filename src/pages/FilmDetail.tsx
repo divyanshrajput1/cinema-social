@@ -1,43 +1,84 @@
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
+import { useState } from "react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import StarRating from "@/components/movies/StarRating";
 import MovieCard from "@/components/movies/MovieCard";
-import ReviewCard from "@/components/reviews/ReviewCard";
+import TrailerModal from "@/components/movies/TrailerModal";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Eye, Heart, Plus, Share2, Clock, Calendar } from "lucide-react";
-import { popularMovies, mockReviews } from "@/data/mockMovies";
-import { useState } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Eye, Heart, Plus, Share2, Clock, Calendar, Play, ExternalLink } from "lucide-react";
+import { useMovieDetails, getImageUrl, getBackdropUrl, TMDBVideo } from "@/hooks/useTMDB";
 
 const FilmDetail = () => {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [userRating, setUserRating] = useState(0);
   const [reviewText, setReviewText] = useState("");
+  const [trailerKey, setTrailerKey] = useState<string | null>(null);
 
-  // Mock data for now
-  const movie = {
-    id: 1,
-    title: "Dune: Part Two",
-    tagline: "Long live the fighters.",
-    overview: "Follow the mythic journey of Paul Atreides as he unites with Chani and the Fremen while on a path of revenge against the conspirators who destroyed his family. Facing a choice between the love of his life and the fate of the known universe, Paul endeavors to prevent a terrible future only he can foresee.",
-    backdropUrl: "https://image.tmdb.org/t/p/original/xOMo8BRK7PfcJv9JCnx7s5hj0PX.jpg",
-    posterUrl: "https://image.tmdb.org/t/p/w500/8b8R8l88Qje9dn9OE8PY05Nxl1X.jpg",
-    rating: 8.4,
-    year: "2024",
-    releaseDate: "March 1, 2024",
-    runtime: "2h 46m",
-    genres: ["Science Fiction", "Adventure", "Drama"],
-    director: "Denis Villeneuve",
-    cast: [
-      { name: "Timothée Chalamet", character: "Paul Atreides", image: "https://i.pravatar.cc/150?img=11" },
-      { name: "Zendaya", character: "Chani", image: "https://i.pravatar.cc/150?img=12" },
-      { name: "Rebecca Ferguson", character: "Lady Jessica", image: "https://i.pravatar.cc/150?img=13" },
-      { name: "Josh Brolin", character: "Gurney Halleck", image: "https://i.pravatar.cc/150?img=14" },
-      { name: "Austin Butler", character: "Feyd-Rautha", image: "https://i.pravatar.cc/150?img=15" },
-      { name: "Florence Pugh", character: "Princess Irulan", image: "https://i.pravatar.cc/150?img=16" },
-    ],
-  };
+  const { data: movie, isLoading, error } = useMovieDetails(id);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <section className="relative min-h-[60vh] flex items-end pt-16">
+          <div className="absolute inset-0 bg-muted" />
+          <div className="relative container mx-auto px-4 pb-12">
+            <div className="flex flex-col md:flex-row gap-8">
+              <Skeleton className="w-48 md:w-64 aspect-[2/3] rounded-lg mx-auto md:mx-0" />
+              <div className="flex-1 space-y-4">
+                <Skeleton className="h-12 w-80" />
+                <Skeleton className="h-6 w-48" />
+                <Skeleton className="h-4 w-64" />
+                <div className="flex gap-2">
+                  {Array.from({ length: 3 }).map((_, i) => (
+                    <Skeleton key={i} className="h-8 w-24 rounded-full" />
+                  ))}
+                </div>
+                <div className="flex gap-3">
+                  <Skeleton className="h-10 w-28" />
+                  <Skeleton className="h-10 w-24" />
+                  <Skeleton className="h-10 w-28" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (error || !movie) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <div className="container mx-auto px-4 py-32 text-center">
+          <h1 className="text-2xl font-bold text-foreground mb-4">Film not found</h1>
+          <p className="text-muted-foreground mb-8">The film you're looking for doesn't exist or couldn't be loaded.</p>
+          <Button onClick={() => navigate('/')}>Back to Home</Button>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  const backdropUrl = getBackdropUrl(movie.backdrop_path);
+  const posterUrl = getImageUrl(movie.poster_path, 'w500');
+  const year = movie.release_date ? new Date(movie.release_date).getFullYear().toString() : '';
+  const releaseDate = movie.release_date ? new Date(movie.release_date).toLocaleDateString('en-US', { 
+    year: 'numeric', month: 'long', day: 'numeric' 
+  }) : '';
+  const runtime = movie.runtime ? `${Math.floor(movie.runtime / 60)}h ${movie.runtime % 60}m` : '';
+  const director = movie.credits?.crew?.find(c => c.job === 'Director');
+  const cast = movie.credits?.cast?.slice(0, 6) || [];
+  const trailer = movie.videos?.results?.find(
+    (v: TMDBVideo) => v.type === 'Trailer' && v.site === 'YouTube'
+  );
+  const similarMovies = movie.similar?.results?.slice(0, 6) || [];
 
   return (
     <div className="min-h-screen bg-background">
@@ -47,11 +88,15 @@ const FilmDetail = () => {
       <section className="relative min-h-[60vh] flex items-end pt-16">
         {/* Backdrop */}
         <div className="absolute inset-0">
-          <img
-            src={movie.backdropUrl}
-            alt={movie.title}
-            className="w-full h-full object-cover"
-          />
+          {backdropUrl ? (
+            <img
+              src={backdropUrl}
+              alt={movie.title}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full bg-muted" />
+          )}
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-background/40" />
         </div>
 
@@ -62,7 +107,7 @@ const FilmDetail = () => {
             <div className="flex-shrink-0">
               <div className="w-48 md:w-64 aspect-[2/3] rounded-lg overflow-hidden shadow-2xl cinema-glow mx-auto md:mx-0">
                 <img
-                  src={movie.posterUrl}
+                  src={posterUrl}
                   alt={movie.title}
                   className="w-full h-full object-cover"
                 />
@@ -75,35 +120,53 @@ const FilmDetail = () => {
                 {movie.title}
               </h1>
               
-              <p className="text-primary text-lg mb-4">{movie.tagline}</p>
+              {movie.tagline && (
+                <p className="text-primary text-lg mb-4">{movie.tagline}</p>
+              )}
 
               {/* Meta */}
               <div className="flex flex-wrap items-center gap-4 text-muted-foreground mb-4">
-                <span className="flex items-center gap-1">
-                  <Calendar className="w-4 h-4" />
-                  {movie.releaseDate}
-                </span>
-                <span className="flex items-center gap-1">
-                  <Clock className="w-4 h-4" />
-                  {movie.runtime}
-                </span>
-                <span>Directed by <span className="text-foreground">{movie.director}</span></span>
+                {releaseDate && (
+                  <span className="flex items-center gap-1">
+                    <Calendar className="w-4 h-4" />
+                    {releaseDate}
+                  </span>
+                )}
+                {runtime && (
+                  <span className="flex items-center gap-1">
+                    <Clock className="w-4 h-4" />
+                    {runtime}
+                  </span>
+                )}
+                {director && (
+                  <span>Directed by <span className="text-foreground">{director.name}</span></span>
+                )}
               </div>
 
               {/* Genres */}
               <div className="flex flex-wrap gap-2 mb-6">
-                {movie.genres.map((genre) => (
+                {movie.genres?.map((genre) => (
                   <span
-                    key={genre}
+                    key={genre.id}
                     className="px-3 py-1 text-sm rounded-full bg-muted text-muted-foreground hover:bg-muted/80 cursor-pointer transition-colors"
                   >
-                    {genre}
+                    {genre.name}
                   </span>
                 ))}
               </div>
 
               {/* Actions */}
               <div className="flex flex-wrap gap-3">
+                {trailer && (
+                  <Button 
+                    variant="cinema" 
+                    className="gap-2"
+                    onClick={() => setTrailerKey(trailer.key)}
+                  >
+                    <Play className="w-4 h-4" />
+                    Trailer
+                  </Button>
+                )}
                 <Button variant="letterboxd" className="gap-2">
                   <Eye className="w-4 h-4" />
                   Watched
@@ -136,33 +199,35 @@ const FilmDetail = () => {
                 Synopsis
               </h2>
               <p className="text-foreground/80 leading-relaxed">
-                {movie.overview}
+                {movie.overview || 'No synopsis available.'}
               </p>
             </section>
 
             {/* Cast */}
-            <section>
-              <h2 className="font-display text-xl font-semibold text-foreground mb-4">
-                Cast
-              </h2>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                {movie.cast.map((person) => (
-                  <div key={person.name} className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-full overflow-hidden bg-muted">
-                      <img
-                        src={person.image}
-                        alt={person.name}
-                        className="w-full h-full object-cover"
-                      />
+            {cast.length > 0 && (
+              <section>
+                <h2 className="font-display text-xl font-semibold text-foreground mb-4">
+                  Cast
+                </h2>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                  {cast.map((person) => (
+                    <div key={person.id} className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-full overflow-hidden bg-muted flex-shrink-0">
+                        <img
+                          src={getImageUrl(person.profile_path, 'w200')}
+                          alt={person.name}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium text-foreground truncate">{person.name}</p>
+                        <p className="text-xs text-muted-foreground truncate">{person.character}</p>
+                      </div>
                     </div>
-                    <div>
-                      <p className="text-sm font-medium text-foreground">{person.name}</p>
-                      <p className="text-xs text-muted-foreground">{person.character}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </section>
+                  ))}
+                </div>
+              </section>
+            )}
 
             {/* Write Review */}
             <section className="glass-card rounded-xl p-6">
@@ -189,18 +254,6 @@ const FilmDetail = () => {
                 </Button>
               </div>
             </section>
-
-            {/* Reviews */}
-            <section>
-              <h2 className="font-display text-xl font-semibold text-foreground mb-4">
-                Popular Reviews
-              </h2>
-              <div className="space-y-4">
-                {mockReviews.slice(0, 2).map((review) => (
-                  <ReviewCard key={review.id} {...review} />
-                ))}
-              </div>
-            </section>
           </div>
 
           {/* Right Column - Stats & Similar */}
@@ -209,42 +262,44 @@ const FilmDetail = () => {
             <div className="glass-card rounded-xl p-6">
               <div className="text-center mb-4">
                 <p className="font-display text-5xl font-bold text-primary mb-1">
-                  {movie.rating.toFixed(1)}
+                  {movie.vote_average.toFixed(1)}
                 </p>
-                <StarRating rating={movie.rating / 2} readonly size="lg" />
-                <p className="text-sm text-muted-foreground mt-2">Based on 45,231 ratings</p>
-              </div>
-              <div className="space-y-2">
-                {[5, 4, 3, 2, 1].map((star) => (
-                  <div key={star} className="flex items-center gap-2">
-                    <span className="text-xs text-muted-foreground w-3">{star}</span>
-                    <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-primary rounded-full"
-                        style={{ width: `${star === 5 ? 65 : star === 4 ? 25 : star === 3 ? 7 : star === 2 ? 2 : 1}%` }}
-                      />
-                    </div>
-                  </div>
-                ))}
+                <StarRating rating={movie.vote_average / 2} readonly size="lg" />
+                <p className="text-sm text-muted-foreground mt-2">
+                  Based on {movie.vote_count.toLocaleString()} ratings
+                </p>
               </div>
             </div>
 
             {/* Similar Films */}
-            <div>
-              <h3 className="font-display text-lg font-semibold text-foreground mb-4">
-                Similar Films
-              </h3>
-              <div className="grid grid-cols-3 gap-3">
-                {popularMovies.slice(1, 7).map((film) => (
-                  <MovieCard key={film.id} {...film} />
-                ))}
+            {similarMovies.length > 0 && (
+              <div>
+                <h3 className="font-display text-lg font-semibold text-foreground mb-4">
+                  Similar Films
+                </h3>
+                <div className="grid grid-cols-3 gap-3">
+                  {similarMovies.map((film) => (
+                    <MovieCard 
+                      key={film.id} 
+                      id={film.id}
+                      title={film.title}
+                      posterPath={film.poster_path}
+                      year={film.release_date ? new Date(film.release_date).getFullYear().toString() : ''}
+                      rating={film.vote_average}
+                      onClick={() => navigate(`/film/${film.id}`)}
+                    />
+                  ))}
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
       </div>
 
       <Footer />
+      
+      {/* Trailer Modal */}
+      <TrailerModal videoKey={trailerKey} onClose={() => setTrailerKey(null)} />
     </div>
   );
 };

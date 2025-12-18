@@ -1,39 +1,38 @@
 import { Button } from "@/components/ui/button";
 import { Play, Plus, Star } from "lucide-react";
-import StarRating from "./StarRating";
+import { getImageUrl, getBackdropUrl, TMDBMovieDetails, TMDBVideo } from "@/hooks/useTMDB";
+import { useState } from "react";
 
 interface FeaturedMovieProps {
-  title: string;
-  tagline: string;
-  overview: string;
-  backdropUrl: string;
-  posterUrl: string;
-  rating: number;
-  year: string;
-  runtime: string;
-  genres: string[];
+  movie: TMDBMovieDetails;
+  onWatchTrailer?: (videoKey: string) => void;
 }
 
-const FeaturedMovie = ({
-  title,
-  tagline,
-  overview,
-  backdropUrl,
-  posterUrl,
-  rating,
-  year,
-  runtime,
-  genres,
-}: FeaturedMovieProps) => {
+const FeaturedMovie = ({ movie, onWatchTrailer }: FeaturedMovieProps) => {
+  const backdropUrl = getBackdropUrl(movie.backdrop_path);
+  const posterUrl = getImageUrl(movie.poster_path, 'w500');
+  const year = movie.release_date ? new Date(movie.release_date).getFullYear().toString() : '';
+  const runtime = movie.runtime ? `${Math.floor(movie.runtime / 60)}h ${movie.runtime % 60}m` : '';
+  const genres = movie.genres?.map(g => g.name) || [];
+  
+  // Find trailer
+  const trailer = movie.videos?.results?.find(
+    (v: TMDBVideo) => v.type === 'Trailer' && v.site === 'YouTube'
+  );
+
   return (
     <section className="relative min-h-[80vh] flex items-end">
       {/* Background Image */}
       <div className="absolute inset-0">
-        <img
-          src={backdropUrl}
-          alt={title}
-          className="w-full h-full object-cover"
-        />
+        {backdropUrl ? (
+          <img
+            src={backdropUrl}
+            alt={movie.title}
+            className="w-full h-full object-cover"
+          />
+        ) : (
+          <div className="w-full h-full bg-muted" />
+        )}
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-background/20" />
         <div className="absolute inset-0 bg-gradient-to-r from-background via-transparent to-transparent" />
       </div>
@@ -46,7 +45,7 @@ const FeaturedMovie = ({
             <div className="w-64 aspect-[2/3] rounded-lg overflow-hidden shadow-2xl cinema-glow">
               <img
                 src={posterUrl}
-                alt={title}
+                alt={movie.title}
                 className="w-full h-full object-cover"
               />
             </div>
@@ -54,31 +53,39 @@ const FeaturedMovie = ({
 
           {/* Info */}
           <div className="flex-1 max-w-2xl">
-            {tagline && (
+            {movie.tagline && (
               <p className="text-primary font-medium mb-2 animate-fade-in">
-                {tagline}
+                {movie.tagline}
               </p>
             )}
             
             <h1 className="font-display text-4xl md:text-6xl font-bold text-foreground mb-4 animate-fade-in" style={{ animationDelay: "0.1s" }}>
-              {title}
+              {movie.title}
             </h1>
 
             {/* Meta */}
             <div className="flex flex-wrap items-center gap-4 mb-4 text-muted-foreground animate-fade-in" style={{ animationDelay: "0.2s" }}>
-              <span>{year}</span>
-              <span className="w-1 h-1 rounded-full bg-muted-foreground" />
-              <span>{runtime}</span>
-              <span className="w-1 h-1 rounded-full bg-muted-foreground" />
-              <div className="flex items-center gap-1">
-                <Star className="w-4 h-4 text-primary fill-primary" />
-                <span className="text-foreground font-medium">{rating.toFixed(1)}</span>
-              </div>
+              {year && <span>{year}</span>}
+              {runtime && (
+                <>
+                  <span className="w-1 h-1 rounded-full bg-muted-foreground" />
+                  <span>{runtime}</span>
+                </>
+              )}
+              {movie.vote_average > 0 && (
+                <>
+                  <span className="w-1 h-1 rounded-full bg-muted-foreground" />
+                  <div className="flex items-center gap-1">
+                    <Star className="w-4 h-4 text-primary fill-primary" />
+                    <span className="text-foreground font-medium">{movie.vote_average.toFixed(1)}</span>
+                  </div>
+                </>
+              )}
             </div>
 
             {/* Genres */}
             <div className="flex flex-wrap gap-2 mb-4 animate-fade-in" style={{ animationDelay: "0.3s" }}>
-              {genres.map((genre) => (
+              {genres.slice(0, 4).map((genre) => (
                 <span
                   key={genre}
                   className="px-3 py-1 text-xs font-medium rounded-full bg-muted text-muted-foreground"
@@ -90,15 +97,22 @@ const FeaturedMovie = ({
 
             {/* Overview */}
             <p className="text-muted-foreground mb-6 line-clamp-3 animate-fade-in" style={{ animationDelay: "0.4s" }}>
-              {overview}
+              {movie.overview}
             </p>
 
             {/* Actions */}
             <div className="flex flex-wrap gap-3 animate-fade-in" style={{ animationDelay: "0.5s" }}>
-              <Button variant="cinema" size="lg" className="gap-2">
-                <Play className="w-5 h-5" />
-                Watch Trailer
-              </Button>
+              {trailer && (
+                <Button 
+                  variant="cinema" 
+                  size="lg" 
+                  className="gap-2"
+                  onClick={() => onWatchTrailer?.(trailer.key)}
+                >
+                  <Play className="w-5 h-5" />
+                  Watch Trailer
+                </Button>
+              )}
               <Button variant="letterboxd" size="lg" className="gap-2">
                 <Plus className="w-5 h-5" />
                 Add to Watchlist

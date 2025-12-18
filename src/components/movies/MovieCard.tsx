@@ -1,16 +1,16 @@
 import { Star, Eye, Heart, Plus } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { getImageUrl } from "@/hooks/useTMDB";
 
 interface MovieCardProps {
   id: number;
   title: string;
-  posterUrl: string;
+  posterPath: string | null;
   year: string;
   rating?: number;
   onClick?: () => void;
 }
 
-const MovieCard = ({ id, title, posterUrl, year, rating, onClick }: MovieCardProps) => {
+const MovieCard = ({ id, title, posterPath, year, rating, onClick }: MovieCardProps) => {
   return (
     <div 
       className="group relative cursor-pointer poster-hover"
@@ -19,7 +19,7 @@ const MovieCard = ({ id, title, posterUrl, year, rating, onClick }: MovieCardPro
       {/* Poster Image */}
       <div className="relative aspect-[2/3] rounded-lg overflow-hidden bg-muted">
         <img
-          src={posterUrl}
+          src={getImageUrl(posterPath, 'w500')}
           alt={title}
           className="w-full h-full object-cover"
           loading="lazy"
@@ -49,18 +49,12 @@ const MovieCard = ({ id, title, posterUrl, year, rating, onClick }: MovieCardPro
         </div>
 
         {/* Rating Badge */}
-        {rating && (
+        {rating && rating > 0 && (
           <div className="absolute top-2 right-2 flex items-center gap-1 bg-background/80 backdrop-blur-sm px-2 py-1 rounded-full">
             <Star className="w-3 h-3 text-primary fill-primary star-glow" />
             <span className="text-xs font-medium text-foreground">{rating.toFixed(1)}</span>
           </div>
         )}
-      </div>
-
-      {/* Info Below */}
-      <div className="mt-2 opacity-0 group-hover:opacity-0">
-        <h3 className="text-sm font-medium text-foreground truncate">{title}</h3>
-        <p className="text-xs text-muted-foreground">{year}</p>
       </div>
     </div>
   );
