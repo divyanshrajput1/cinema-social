@@ -5,20 +5,70 @@ import Footer from "@/components/layout/Footer";
 import StarRating from "@/components/movies/StarRating";
 import MovieCard from "@/components/movies/MovieCard";
 import TrailerModal from "@/components/movies/TrailerModal";
+import LogMovieDialog from "@/components/movies/LogMovieDialog";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Eye, Heart, Plus, Share2, Clock, Calendar, Play, ExternalLink } from "lucide-react";
+import { Eye, Heart, Plus, Share2, Clock, Calendar, Play, Check } from "lucide-react";
 import { useMovieDetails, getImageUrl, getBackdropUrl, TMDBVideo } from "@/hooks/useTMDB";
+import { useAuth } from "@/hooks/useAuth";
+import { useWatchlist } from "@/hooks/useWatchlist";
+import { useDiary } from "@/hooks/useDiary";
+import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 const FilmDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [userRating, setUserRating] = useState(0);
-  const [reviewText, setReviewText] = useState("");
   const [trailerKey, setTrailerKey] = useState<string | null>(null);
+  const [logDialogOpen, setLogDialogOpen] = useState(false);
 
+  const { user } = useAuth();
+  const { isInWatchlist, addToWatchlist, removeFromWatchlist } = useWatchlist();
+  const { getEntryForMovie, addToDiary } = useDiary();
+  
   const { data: movie, isLoading, error } = useMovieDetails(id);
+
+  const movieId = parseInt(id || "0");
+  const inWatchlist = isInWatchlist(movieId);
+  const diaryEntry = getEntryForMovie(movieId);
+
+  const handleWatchlistToggle = () => {
+    if (!user) {
+      toast.error("Sign in to add to watchlist");
+      navigate("/auth");
+      return;
+    }
+    
+    if (inWatchlist) {
+      removeFromWatchlist.mutate(movieId);
+    } else {
+      addToWatchlist.mutate({
+        tmdb_id: movieId,
+        title: movie?.title || "",
+        poster_path: movie?.poster_path,
+        release_date: movie?.release_date,
+      });
+    }
+  };
+
+  const handleLogMovie = () => {
+    if (!user) {
+      toast.error("Sign in to log films");
+      navigate("/auth");
+      return;
+    }
+    setLogDialogOpen(true);
+  };
+
+  const handleLogSubmit = (data: { watched_at: string; rating?: number; review?: string; liked: boolean }) => {
+    addToDiary.mutate({
+      tmdb_id: movieId,
+      title: movie?.title || "",
+      poster_path: movie?.poster_path,
+      release_date: movie?.release_date,
+      ...data,
+    });
+  };
 
   if (isLoading) {
     return (
@@ -68,7 +118,6 @@ const FilmDetail = () => {
 
   const backdropUrl = getBackdropUrl(movie.backdrop_path);
   const posterUrl = getImageUrl(movie.poster_path, 'w500');
-  const year = movie.release_date ? new Date(movie.release_date).getFullYear().toString() : '';
   const releaseDate = movie.release_date ? new Date(movie.release_date).toLocaleDateString('en-US', { 
     year: 'numeric', month: 'long', day: 'numeric' 
   }) : '';
@@ -167,17 +216,36 @@ const FilmDetail = () => {
                     Trailer
                   </Button>
                 )}
-                <Button variant="letterboxd" className="gap-2">
+                <Button 
+                  variant="letterboxd" 
+                  className="gap-2"
+                  onClick={handleLogMovie}
+                >
                   <Eye className="w-4 h-4" />
-                  Watched
+                  {diaryEntry ? "Logged" : "Log"}
                 </Button>
-                <Button variant="outline" className="gap-2">
-                  <Heart className="w-4 h-4" />
-                  Like
-                </Button>
-                <Button variant="outline" className="gap-2">
-                  <Plus className="w-4 h-4" />
-                  Watchlist
+                {diaryEntry?.liked && (
+                  <Button variant="outline" className="gap-2" disabled>
+                    <Heart className="w-4 h-4 fill-destructive text-destructive" />
+                    Liked
+                  </Button>
+                )}
+                <Button 
+                  variant="outline" 
+                  className={cn("gap-2", inWatchlist && "border-primary text-primary")}
+                  onClick={handleWatchlistToggle}
+                >
+                  {inWatchlist ? (
+                    <>
+                      <Check className="w-4 h-4" />
+                      In Watchlist
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="w-4 h-4" />
+                      Watchlist
+                    </>
+                  )}
                 </Button>
                 <Button variant="ghost" size="icon">
                   <Share2 className="w-4 h-4" />
@@ -228,32 +296,6 @@ const FilmDetail = () => {
                 </div>
               </section>
             )}
-
-            {/* Write Review */}
-            <section className="glass-card rounded-xl p-6">
-              <h2 className="font-display text-xl font-semibold text-foreground mb-4">
-                Write a Review
-              </h2>
-              <div className="space-y-4">
-                <div>
-                  <label className="text-sm text-muted-foreground mb-2 block">Your Rating</label>
-                  <StarRating
-                    rating={userRating}
-                    onRatingChange={setUserRating}
-                    size="lg"
-                  />
-                </div>
-                <Textarea
-                  placeholder="Share your thoughts about this film..."
-                  value={reviewText}
-                  onChange={(e) => setReviewText(e.target.value)}
-                  className="min-h-[120px] bg-muted/50 border-border"
-                />
-                <Button variant="letterboxd" disabled={!userRating}>
-                  Post Review
-                </Button>
-              </div>
-            </section>
           </div>
 
           {/* Right Column - Stats & Similar */}
@@ -270,6 +312,32 @@ const FilmDetail = () => {
                 </p>
               </div>
             </div>
+
+            {/* Your Entry */}
+            {diaryEntry && (
+              <div className="glass-card rounded-xl p-6">
+                <h3 className="font-display text-lg font-semibold text-foreground mb-3">
+                  Your Entry
+                </h3>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-muted-foreground">Watched</span>
+                    <span>{new Date(diaryEntry.watched_at).toLocaleDateString()}</span>
+                  </div>
+                  {diaryEntry.rating && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground">Rating</span>
+                      <StarRating rating={diaryEntry.rating} readonly size="sm" />
+                    </div>
+                  )}
+                  {diaryEntry.review && (
+                    <p className="text-sm text-foreground/80 mt-3 italic">
+                      "{diaryEntry.review}"
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
 
             {/* Similar Films */}
             {similarMovies.length > 0 && (
@@ -300,6 +368,21 @@ const FilmDetail = () => {
       
       {/* Trailer Modal */}
       <TrailerModal videoKey={trailerKey} onClose={() => setTrailerKey(null)} />
+      
+      {/* Log Movie Dialog */}
+      {movie && (
+        <LogMovieDialog
+          open={logDialogOpen}
+          onOpenChange={setLogDialogOpen}
+          movie={{
+            id: movieId,
+            title: movie.title,
+            poster_path: movie.poster_path,
+            release_date: movie.release_date,
+          }}
+          onSubmit={handleLogSubmit}
+        />
+      )}
     </div>
   );
 };
