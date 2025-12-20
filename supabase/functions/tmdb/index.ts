@@ -15,7 +15,7 @@ serve(async (req) => {
   }
 
   try {
-    const { action, query, movieId, page = 1 } = await req.json();
+    const { action, query, movieId, page = 1, genreId, year, minRating, sortBy } = await req.json();
     
     if (!TMDB_API_KEY) {
       console.error('TMDB_API_KEY is not configured');
@@ -67,8 +67,11 @@ serve(async (req) => {
         const params = new URLSearchParams({
           api_key: TMDB_API_KEY,
           page: page.toString(),
-          sort_by: 'popularity.desc',
+          sort_by: sortBy || 'popularity.desc',
         });
+        if (genreId) params.append('with_genres', genreId.toString());
+        if (year) params.append('primary_release_year', year.toString());
+        if (minRating) params.append('vote_average.gte', minRating.toString());
         url = `${TMDB_BASE_URL}/discover/movie?${params}`;
         break;
       default:
