@@ -60,13 +60,13 @@ const Films = () => {
   
   // Build filters object
   const filters: DiscoverFilters = useMemo(() => ({
-    genreId: selectedGenre ? parseInt(selectedGenre) : undefined,
-    year: selectedYear ? parseInt(selectedYear) : undefined,
-    minRating: selectedRating ? parseInt(selectedRating) : undefined,
+    genreId: selectedGenre && selectedGenre !== 'all' ? parseInt(selectedGenre) : undefined,
+    year: selectedYear && selectedYear !== 'all' ? parseInt(selectedYear) : undefined,
+    minRating: selectedRating && selectedRating !== '0' ? parseInt(selectedRating) : undefined,
     sortBy: selectedSort || 'popularity.desc',
   }), [selectedGenre, selectedYear, selectedRating, selectedSort]);
   
-  const hasActiveFilters = selectedGenre || selectedYear || selectedRating || selectedSort !== 'popularity.desc';
+  const hasActiveFilters = (selectedGenre && selectedGenre !== 'all') || (selectedYear && selectedYear !== 'all') || (selectedRating && selectedRating !== '0') || selectedSort !== 'popularity.desc';
   
   const {
     data: searchData,
@@ -117,20 +117,20 @@ const Films = () => {
   };
   
   const clearFilters = () => {
-    setSelectedGenre('');
-    setSelectedYear('');
-    setSelectedRating('');
+    setSelectedGenre('all');
+    setSelectedYear('all');
+    setSelectedRating('0');
     setSelectedSort('popularity.desc');
     setSearchQuery('');
   };
 
   const getActiveFilterLabel = () => {
     const parts: string[] = [];
-    if (selectedGenre) {
+    if (selectedGenre && selectedGenre !== 'all') {
       const genre = genresData?.genres.find(g => g.id.toString() === selectedGenre);
       if (genre) parts.push(genre.name);
     }
-    if (selectedYear) parts.push(selectedYear);
+    if (selectedYear && selectedYear !== 'all') parts.push(selectedYear);
     if (selectedRating && selectedRating !== '0') parts.push(`${selectedRating}+ rating`);
     return parts.length > 0 ? parts.join(' • ') : null;
   };
@@ -206,12 +206,12 @@ const Films = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 p-4 bg-muted/30 rounded-lg border border-border animate-fade-in">
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-foreground">Genre</label>
-                  <Select value={selectedGenre} onValueChange={setSelectedGenre}>
+                  <Select value={selectedGenre || 'all'} onValueChange={setSelectedGenre}>
                     <SelectTrigger className="bg-background">
                       <SelectValue placeholder="All Genres" />
                     </SelectTrigger>
                     <SelectContent className="bg-background border-border">
-                      <SelectItem value="">All Genres</SelectItem>
+                      <SelectItem value="all">All Genres</SelectItem>
                       {genresData?.genres.map((genre) => (
                         <SelectItem key={genre.id} value={genre.id.toString()}>
                           {genre.name}
@@ -223,12 +223,12 @@ const Films = () => {
                 
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-foreground">Year</label>
-                  <Select value={selectedYear} onValueChange={setSelectedYear}>
+                  <Select value={selectedYear || 'all'} onValueChange={setSelectedYear}>
                     <SelectTrigger className="bg-background">
                       <SelectValue placeholder="Any Year" />
                     </SelectTrigger>
                     <SelectContent className="bg-background border-border max-h-60">
-                      <SelectItem value="">Any Year</SelectItem>
+                      <SelectItem value="all">Any Year</SelectItem>
                       {years.map((year) => (
                         <SelectItem key={year} value={year.toString()}>
                           {year}
@@ -240,7 +240,7 @@ const Films = () => {
                 
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-foreground">Rating</label>
-                  <Select value={selectedRating} onValueChange={setSelectedRating}>
+                  <Select value={selectedRating || '0'} onValueChange={setSelectedRating}>
                     <SelectTrigger className="bg-background">
                       <SelectValue placeholder="Any Rating" />
                     </SelectTrigger>
@@ -256,7 +256,7 @@ const Films = () => {
                 
                 <div className="space-y-2">
                   <label className="text-sm font-medium text-foreground">Sort By</label>
-                  <Select value={selectedSort} onValueChange={setSelectedSort}>
+                  <Select value={selectedSort || 'popularity.desc'} onValueChange={setSelectedSort}>
                     <SelectTrigger className="bg-background">
                       <SelectValue placeholder="Sort By" />
                     </SelectTrigger>
