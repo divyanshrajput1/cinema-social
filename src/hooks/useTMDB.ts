@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 export interface TMDBMovie {
@@ -106,6 +106,21 @@ export const usePopular = (page = 1) => {
   });
 };
 
+export const useInfinitePopular = () => {
+  return useInfiniteQuery<TMDBResponse>({
+    queryKey: ['tmdb', 'popular', 'infinite'],
+    queryFn: ({ pageParam = 1 }) => fetchTMDB('popular', { page: pageParam }),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => {
+      if (lastPage.page < lastPage.total_pages) {
+        return lastPage.page + 1;
+      }
+      return undefined;
+    },
+    staleTime: 1000 * 60 * 5,
+  });
+};
+
 export const useTopRated = (page = 1) => {
   return useQuery<TMDBResponse>({
     queryKey: ['tmdb', 'top_rated', page],
@@ -135,6 +150,22 @@ export const useSearchMovies = (query: string, page = 1) => {
     queryKey: ['tmdb', 'search', query, page],
     queryFn: () => fetchTMDB('search', { query, page }),
     enabled: query.length > 0,
+    staleTime: 1000 * 60 * 5,
+  });
+};
+
+export const useInfiniteSearch = (query: string) => {
+  return useInfiniteQuery<TMDBResponse>({
+    queryKey: ['tmdb', 'search', 'infinite', query],
+    queryFn: ({ pageParam = 1 }) => fetchTMDB('search', { query, page: pageParam }),
+    initialPageParam: 1,
+    enabled: query.length > 0,
+    getNextPageParam: (lastPage) => {
+      if (lastPage.page < lastPage.total_pages) {
+        return lastPage.page + 1;
+      }
+      return undefined;
+    },
     staleTime: 1000 * 60 * 5,
   });
 };

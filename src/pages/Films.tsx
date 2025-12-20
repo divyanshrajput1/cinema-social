@@ -7,8 +7,9 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Search, Grid, List, Loader2 } from "lucide-react";
-import { useSearchMovies, usePopular, TMDBMovie } from "@/hooks/useTMDB";
+import { useInfinitePopular, useInfiniteSearch, TMDBMovie } from "@/hooks/useTMDB";
 import { useDebounce } from "@/hooks/useDebounce";
+import { useIntersectionObserver } from "@/hooks/useIntersectionObserver";
 
 const Films = () => {
   const navigate = useNavigate();
@@ -17,13 +18,41 @@ const Films = () => {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   
   const debouncedSearch = useDebounce(searchQuery, 300);
+  const { ref: loadMoreRef, isIntersecting } = useIntersectionObserver();
   
-  const { data: searchResults, isLoading: searchLoading } = useSearchMovies(debouncedSearch);
-  const { data: popularMovies, isLoading: popularLoading } = usePopular();
+  const {
+    data: searchData,
+    isLoading: searchLoading,
+    isFetchingNextPage: searchFetchingNext,
+    hasNextPage: searchHasNext,
+    fetchNextPage: fetchNextSearch,
+  } = useInfiniteSearch(debouncedSearch);
+  
+  const {
+    data: popularData,
+    isLoading: popularLoading,
+    isFetchingNextPage: popularFetchingNext,
+    hasNextPage: popularHasNext,
+    fetchNextPage: fetchNextPopular,
+  } = useInfinitePopular();
   
   const isSearching = debouncedSearch.length > 0;
-  const movies = isSearching ? searchResults?.results : popularMovies?.results;
+  const data = isSearching ? searchData : popularData;
   const isLoading = isSearching ? searchLoading : popularLoading;
+  const isFetchingNextPage = isSearching ? searchFetchingNext : popularFetchingNext;
+  const hasNextPage = isSearching ? searchHasNext : popularHasNext;
+  const fetchNextPage = isSearching ? fetchNextSearch : fetchNextPopular;
+  
+  // Flatten all pages into a single array of movies
+  const movies = data?.pages.flatMap(page => page.results) ?? [];
+  const totalResults = data?.pages[0]?.total_results ?? 0;
+
+  // Trigger load more when intersection observer fires
+  useEffect(() => {
+    if (isIntersecting && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [isIntersecting, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   // Update URL when search changes
   useEffect(() => {
@@ -91,11 +120,11 @@ const Films = () => {
           </div>
 
           {/* Results Count */}
-          {!isLoading && movies && (
+          {!isLoading && movies.length > 0 && (
             <p className="text-sm text-muted-foreground mb-6">
               {isSearching 
-                ? `Found ${searchResults?.total_results?.toLocaleString() || 0} films` 
-                : `Showing ${movies.length} popular films`
+                ? `Found ${totalResults.toLocaleString()} films` 
+                : `Showing ${movies.length} of ${totalResults.toLocaleString()} popular films`
               }
             </p>
           )}
@@ -110,29 +139,41 @@ const Films = () => {
           )}
 
           {/* Movie Grid */}
-          {!isLoading && movies && movies.length > 0 && (
-            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 gap-4 md:gap-6">
-              {movies.map((movie: TMDBMovie, index: number) => (
-                <div
-                  key={movie.id}
-                  className="animate-fade-in"
-                  style={{ animationDelay: `${index * 0.03}s` }}
-                >
-                  <MovieCard
-                    id={movie.id}
-                    title={movie.title}
-                    posterPath={movie.poster_path}
-                    year={movie.release_date ? new Date(movie.release_date).getFullYear().toString() : ''}
-                    rating={movie.vote_average}
-                    onClick={() => handleMovieClick(movie.id)}
-                  />
-                </div>
-              ))}
-            </div>
+          {!isLoading && movies.length > 0 && (
+            <>
+              <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 gap-4 md:gap-6">
+                {movies.map((movie: TMDBMovie, index: number) => (
+                  <div
+                    key={`${movie.id}-${index}`}
+                    className="animate-fade-in"
+                    style={{ animationDelay: `${(index % 20) * 0.03}s` }}
+                  >
+                    <MovieCard
+                      id={movie.id}
+                      title={movie.title}
+                      posterPath={movie.poster_path}
+                      year={movie.release_date ? new Date(movie.release_date).getFullYear().toString() : ''}
+                      rating={movie.vote_average}
+                      onClick={() => handleMovieClick(movie.id)}
+                    />
+                  </div>
+                ))}
+              </div>
+              
+              {/* Load More Trigger */}
+              <div ref={loadMoreRef} className="flex justify-center py-8">
+                {isFetchingNextPage && (
+                  <Loader2 className="w-8 h-8 text-primary animate-spin" />
+                )}
+                {!hasNextPage && movies.length > 0 && (
+                  <p className="text-muted-foreground text-sm">You've seen all the films!</p>
+                )}
+              </div>
+            </>
           )}
 
           {/* No Results */}
-          {!isLoading && isSearching && (!movies || movies.length === 0) && (
+          {!isLoading && isSearching && movies.length === 0 && (
             <div className="text-center py-16">
               <p className="text-xl text-muted-foreground mb-4">
                 No films found matching "{debouncedSearch}"
