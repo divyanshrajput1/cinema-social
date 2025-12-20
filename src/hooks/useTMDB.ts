@@ -195,3 +195,28 @@ export const useGenres = () => {
     staleTime: 1000 * 60 * 60,
   });
 };
+
+export interface DiscoverFilters {
+  genreId?: number;
+  year?: number;
+  minRating?: number;
+  sortBy?: string;
+}
+
+export const useInfiniteDiscover = (filters: DiscoverFilters) => {
+  return useInfiniteQuery<TMDBResponse>({
+    queryKey: ['tmdb', 'discover', 'infinite', filters],
+    queryFn: ({ pageParam = 1 }) => fetchTMDB('discover', { 
+      page: pageParam,
+      ...filters 
+    }),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => {
+      if (lastPage.page < lastPage.total_pages && lastPage.page < 500) {
+        return lastPage.page + 1;
+      }
+      return undefined;
+    },
+    staleTime: 1000 * 60 * 5,
+  });
+};
