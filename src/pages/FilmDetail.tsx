@@ -6,6 +6,7 @@ import StarRating from "@/components/movies/StarRating";
 import MovieCard from "@/components/movies/MovieCard";
 import TrailerModal from "@/components/movies/TrailerModal";
 import LogMovieDialog from "@/components/movies/LogMovieDialog";
+import ReviewSection from "@/components/reviews/ReviewSection";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Eye, Heart, Plus, Share2, Clock, Calendar, Play, Check } from "lucide-react";
@@ -296,6 +297,15 @@ const FilmDetail = () => {
                 </div>
               </section>
             )}
+
+            {/* Reviews Section */}
+            <ReviewSection 
+              movie={{
+                id: movieId,
+                title: movie.title,
+                poster_path: movie.poster_path,
+              }}
+            />
           </div>
 
           {/* Right Column - Stats & Similar */}
