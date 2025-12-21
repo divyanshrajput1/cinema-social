@@ -27,9 +27,10 @@ interface LogMovieDialogProps {
     review?: string;
     liked: boolean;
   }) => void;
+  mediaType?: 'movie' | 'tv';
 }
 
-const LogMovieDialog = ({ open, onOpenChange, movie, onSubmit }: LogMovieDialogProps) => {
+const LogMovieDialog = ({ open, onOpenChange, movie, onSubmit, mediaType = 'movie' }: LogMovieDialogProps) => {
   const [watchedAt, setWatchedAt] = useState(new Date().toISOString().split("T")[0]);
   const [rating, setRating] = useState<number | undefined>(undefined);
   const [review, setReview] = useState("");

@@ -11,6 +11,7 @@ interface WatchlistItem {
   poster_path: string | null;
   release_date: string | null;
   added_at: string;
+  media_type: 'movie' | 'tv';
 }
 
 export const useWatchlist = () => {
@@ -34,15 +35,16 @@ export const useWatchlist = () => {
   });
 
   const addToWatchlist = useMutation({
-    mutationFn: async (movie: { tmdb_id: number; title: string; poster_path?: string; release_date?: string }) => {
+    mutationFn: async (item: { tmdb_id: number; title: string; poster_path?: string; release_date?: string; media_type?: 'movie' | 'tv' }) => {
       if (!user) throw new Error("Must be logged in");
       
       const { error } = await supabase.from("watchlist").insert({
         user_id: user.id,
-        tmdb_id: movie.tmdb_id,
-        title: movie.title,
-        poster_path: movie.poster_path || null,
-        release_date: movie.release_date || null,
+        tmdb_id: item.tmdb_id,
+        title: item.title,
+        poster_path: item.poster_path || null,
+        release_date: item.release_date || null,
+        media_type: item.media_type || 'movie',
       });
       
       if (error) throw error;

@@ -16,6 +16,7 @@ export interface DiaryEntry {
   liked: boolean;
   created_at: string;
   updated_at: string;
+  media_type: 'movie' | 'tv';
 }
 
 interface AddDiaryInput {
@@ -27,6 +28,7 @@ interface AddDiaryInput {
   rating?: number;
   review?: string;
   liked?: boolean;
+  media_type?: 'movie' | 'tv';
 }
 
 interface UpdateDiaryInput {
@@ -71,6 +73,7 @@ export const useDiary = () => {
         rating: input.rating || null,
         review: input.review || null,
         liked: input.liked || false,
+        media_type: input.media_type || 'movie',
       });
       
       if (error) throw error;
