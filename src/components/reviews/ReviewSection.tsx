@@ -27,9 +27,10 @@ interface ReviewSectionProps {
     title: string;
     poster_path?: string;
   };
+  mediaType?: 'movie' | 'tv';
 }
 
-const ReviewSection = ({ movie }: ReviewSectionProps) => {
+const ReviewSection = ({ movie, mediaType = 'movie' }: ReviewSectionProps) => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [writeDialogOpen, setWriteDialogOpen] = useState(false);
@@ -74,6 +75,7 @@ const ReviewSection = ({ movie }: ReviewSectionProps) => {
         tmdb_id: movie.id,
         title: movie.title,
         poster_path: movie.poster_path,
+        media_type: mediaType,
         ...data,
       });
     }

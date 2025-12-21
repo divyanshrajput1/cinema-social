@@ -19,6 +19,7 @@ export type Database = {
           created_at: string
           id: string
           liked: boolean | null
+          media_type: string
           poster_path: string | null
           rating: number | null
           release_date: string | null
@@ -33,6 +34,7 @@ export type Database = {
           created_at?: string
           id?: string
           liked?: boolean | null
+          media_type?: string
           poster_path?: string | null
           rating?: number | null
           release_date?: string | null
@@ -47,6 +49,7 @@ export type Database = {
           created_at?: string
           id?: string
           liked?: boolean | null
+          media_type?: string
           poster_path?: string | null
           rating?: number | null
           release_date?: string | null
@@ -161,6 +164,7 @@ export type Database = {
           content: string
           created_at: string
           id: string
+          media_type: string
           poster_path: string | null
           rating: number
           title: string
@@ -172,6 +176,7 @@ export type Database = {
           content: string
           created_at?: string
           id?: string
+          media_type?: string
           poster_path?: string | null
           rating: number
           title: string
@@ -183,6 +188,7 @@ export type Database = {
           content?: string
           created_at?: string
           id?: string
+          media_type?: string
           poster_path?: string | null
           rating?: number
           title?: string
@@ -214,6 +220,7 @@ export type Database = {
         Row: {
           added_at: string
           id: string
+          media_type: string
           poster_path: string | null
           release_date: string | null
           title: string
@@ -223,6 +230,7 @@ export type Database = {
         Insert: {
           added_at?: string
           id?: string
+          media_type?: string
           poster_path?: string | null
           release_date?: string | null
           title: string
@@ -232,6 +240,7 @@ export type Database = {
         Update: {
           added_at?: string
           id?: string
+          media_type?: string
           poster_path?: string | null
           release_date?: string | null
           title?: string

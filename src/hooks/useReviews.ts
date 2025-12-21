@@ -43,6 +43,7 @@ interface CreateReviewInput {
   poster_path?: string;
   rating: number;
   content: string;
+  media_type?: 'movie' | 'tv';
 }
 
 interface UpdateReviewInput {
@@ -146,6 +147,7 @@ export const useReviews = (tmdbId?: number) => {
         poster_path: input.poster_path || null,
         rating: input.rating,
         content: input.content,
+        media_type: input.media_type || 'movie',
       });
       
       if (error) throw error;
