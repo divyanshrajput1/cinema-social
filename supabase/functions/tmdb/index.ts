@@ -15,7 +15,7 @@ serve(async (req) => {
   }
 
   try {
-    const { action, query, movieId, page = 1, genreId, year, minRating, sortBy } = await req.json();
+    const { action, query, movieId, tvId, seasonNumber, page = 1, genreId, year, minRating, sortBy } = await req.json();
     
     if (!TMDB_API_KEY) {
       console.error('TMDB_API_KEY is not configured');
@@ -25,6 +25,7 @@ serve(async (req) => {
     let url = '';
     
     switch (action) {
+      // Movie endpoints
       case 'trending':
         url = `${TMDB_BASE_URL}/trending/movie/week?api_key=${TMDB_API_KEY}&page=${page}`;
         break;
@@ -74,11 +75,65 @@ serve(async (req) => {
         if (minRating) params.append('vote_average.gte', minRating.toString());
         url = `${TMDB_BASE_URL}/discover/movie?${params}`;
         break;
+      
+      // TV endpoints
+      case 'tv_trending':
+        url = `${TMDB_BASE_URL}/trending/tv/week?api_key=${TMDB_API_KEY}&page=${page}`;
+        break;
+      case 'tv_popular':
+        url = `${TMDB_BASE_URL}/tv/popular?api_key=${TMDB_API_KEY}&page=${page}`;
+        break;
+      case 'tv_top_rated':
+        url = `${TMDB_BASE_URL}/tv/top_rated?api_key=${TMDB_API_KEY}&page=${page}`;
+        break;
+      case 'tv_on_the_air':
+        url = `${TMDB_BASE_URL}/tv/on_the_air?api_key=${TMDB_API_KEY}&page=${page}`;
+        break;
+      case 'tv_airing_today':
+        url = `${TMDB_BASE_URL}/tv/airing_today?api_key=${TMDB_API_KEY}&page=${page}`;
+        break;
+      case 'search_tv':
+        if (!query) throw new Error('Search query is required');
+        url = `${TMDB_BASE_URL}/search/tv?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(query)}&page=${page}`;
+        break;
+      case 'tv_details':
+        if (!tvId) throw new Error('TV ID is required');
+        url = `${TMDB_BASE_URL}/tv/${tvId}?api_key=${TMDB_API_KEY}&append_to_response=credits,videos,similar,recommendations`;
+        break;
+      case 'tv_season':
+        if (!tvId || seasonNumber === undefined) throw new Error('TV ID and season number are required');
+        url = `${TMDB_BASE_URL}/tv/${tvId}/season/${seasonNumber}?api_key=${TMDB_API_KEY}`;
+        break;
+      case 'tv_similar':
+        if (!tvId) throw new Error('TV ID is required');
+        url = `${TMDB_BASE_URL}/tv/${tvId}/similar?api_key=${TMDB_API_KEY}&page=${page}`;
+        break;
+      case 'tv_genres':
+        url = `${TMDB_BASE_URL}/genre/tv/list?api_key=${TMDB_API_KEY}`;
+        break;
+      case 'discover_tv':
+        const tvParams = new URLSearchParams({
+          api_key: TMDB_API_KEY,
+          page: page.toString(),
+          sort_by: sortBy || 'popularity.desc',
+        });
+        if (genreId) tvParams.append('with_genres', genreId.toString());
+        if (year) tvParams.append('first_air_date_year', year.toString());
+        if (minRating) tvParams.append('vote_average.gte', minRating.toString());
+        url = `${TMDB_BASE_URL}/discover/tv?${tvParams}`;
+        break;
+      
+      // Multi-search (searches both movies and TV)
+      case 'multi_search':
+        if (!query) throw new Error('Search query is required');
+        url = `${TMDB_BASE_URL}/search/multi?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(query)}&page=${page}`;
+        break;
+        
       default:
         throw new Error(`Unknown action: ${action}`);
     }
 
-    console.log(`Fetching TMDB: ${action}`, { movieId, query, page });
+    console.log(`Fetching TMDB: ${action}`, { movieId, tvId, query, page, seasonNumber });
     
     const response = await fetch(url);
     
