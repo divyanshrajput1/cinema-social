@@ -19,6 +19,7 @@ const Navbar = () => {
 
   const navLinks = [
     { path: "/films", label: "Films" },
+    { path: "/tv", label: "TV Shows" },
     { path: "/diary", label: "Diary", requiresAuth: true },
     { path: "/watchlist", label: "Watchlist", requiresAuth: true },
   ];
