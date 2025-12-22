@@ -15,7 +15,7 @@ serve(async (req) => {
   }
 
   try {
-    const { action, query, movieId, tvId, seasonNumber, page = 1, genreId, year, minRating, sortBy } = await req.json();
+    const { action, query, movieId, tvId, personId, seasonNumber, page = 1, genreId, year, minRating, sortBy } = await req.json();
     
     if (!TMDB_API_KEY) {
       console.error('TMDB_API_KEY is not configured');
@@ -128,12 +128,22 @@ serve(async (req) => {
         if (!query) throw new Error('Search query is required');
         url = `${TMDB_BASE_URL}/search/multi?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(query)}&page=${page}`;
         break;
+      
+      // Person endpoints
+      case 'person_details':
+        if (!personId) throw new Error('Person ID is required');
+        url = `${TMDB_BASE_URL}/person/${personId}?api_key=${TMDB_API_KEY}&append_to_response=combined_credits,images`;
+        break;
+      case 'person_credits':
+        if (!personId) throw new Error('Person ID is required');
+        url = `${TMDB_BASE_URL}/person/${personId}/combined_credits?api_key=${TMDB_API_KEY}`;
+        break;
         
       default:
         throw new Error(`Unknown action: ${action}`);
     }
 
-    console.log(`Fetching TMDB: ${action}`, { movieId, tvId, query, page, seasonNumber });
+    console.log(`Fetching TMDB: ${action}`, { movieId, tvId, personId, query, page, seasonNumber });
     
     const response = await fetch(url);
     
