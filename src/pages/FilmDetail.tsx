@@ -280,8 +280,12 @@ const FilmDetail = () => {
                 </h2>
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                   {cast.map((person) => (
-                    <div key={person.id} className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-full overflow-hidden bg-muted flex-shrink-0">
+                    <div 
+                      key={person.id} 
+                      className="flex items-center gap-3 cursor-pointer group"
+                      onClick={() => navigate(`/person/${person.id}`)}
+                    >
+                      <div className="w-12 h-12 rounded-full overflow-hidden bg-muted flex-shrink-0 ring-2 ring-transparent group-hover:ring-primary transition-all">
                         <img
                           src={getImageUrl(person.profile_path, 'w200')}
                           alt={person.name}
@@ -289,7 +293,7 @@ const FilmDetail = () => {
                         />
                       </div>
                       <div className="min-w-0">
-                        <p className="text-sm font-medium text-foreground truncate">{person.name}</p>
+                        <p className="text-sm font-medium text-foreground truncate group-hover:text-primary transition-colors">{person.name}</p>
                         <p className="text-xs text-muted-foreground truncate">{person.character}</p>
                       </div>
                     </div>
