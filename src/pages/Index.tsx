@@ -4,10 +4,12 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import FeaturedMovie from "@/components/movies/FeaturedMovie";
 import MovieGrid from "@/components/movies/MovieGrid";
+import TVGrid from "@/components/tv/TVGrid";
 import TrailerModal from "@/components/movies/TrailerModal";
 import { useTrending, usePopular, useTopRated, useNowPlaying, TMDBMovie, useMovieDetails } from "@/hooks/useTMDB";
+import { useTVTrending, useTVPopular, TMDBTVShow } from "@/hooks/useTMDBTV";
 import { Button } from "@/components/ui/button";
-import { Users, Film, Star, Loader2 } from "lucide-react";
+import { Users, Film, Star, Tv } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const transformMovies = (movies: TMDBMovie[] = []) => {
@@ -20,6 +22,16 @@ const transformMovies = (movies: TMDBMovie[] = []) => {
   }));
 };
 
+const transformTVShows = (shows: TMDBTVShow[] = []) => {
+  return shows.map((show) => ({
+    id: show.id,
+    name: show.name,
+    posterPath: show.poster_path,
+    year: show.first_air_date ? new Date(show.first_air_date).getFullYear().toString() : '',
+    rating: show.vote_average,
+  }));
+};
+
 const Index = () => {
   const navigate = useNavigate();
   const [trailerKey, setTrailerKey] = useState<string | null>(null);
@@ -29,12 +41,20 @@ const Index = () => {
   const { data: topRated, isLoading: topRatedLoading } = useTopRated();
   const { data: nowPlaying, isLoading: nowPlayingLoading } = useNowPlaying();
   
+  // TV Shows data
+  const { data: tvTrending, isLoading: tvTrendingLoading } = useTVTrending();
+  const { data: tvPopular, isLoading: tvPopularLoading } = useTVPopular();
+  
   // Get featured movie details (first trending movie)
   const featuredMovieId = trending?.results?.[0]?.id;
   const { data: featuredMovie, isLoading: featuredLoading } = useMovieDetails(featuredMovieId);
 
   const handleMovieClick = (id: number) => {
     navigate(`/film/${id}`);
+  };
+
+  const handleTVClick = (id: number) => {
+    navigate(`/tv/${id}`);
   };
 
   return (
@@ -129,6 +149,24 @@ const Index = () => {
         movies={transformMovies(topRated?.results?.slice(0, 14))}
         onMovieClick={handleMovieClick}
         isLoading={topRatedLoading}
+      />
+
+      {/* Trending TV Shows */}
+      <TVGrid
+        title="Trending TV Shows"
+        subtitle="The most-watched series this week"
+        shows={transformTVShows(tvTrending?.results?.slice(0, 14))}
+        onShowClick={handleTVClick}
+        isLoading={tvTrendingLoading}
+      />
+
+      {/* Popular TV Shows */}
+      <TVGrid
+        title="Popular TV Shows"
+        subtitle="Binge-worthy series everyone's talking about"
+        shows={transformTVShows(tvPopular?.results?.slice(0, 14))}
+        onShowClick={handleTVClick}
+        isLoading={tvPopularLoading}
       />
 
       {/* CTA Section */}
