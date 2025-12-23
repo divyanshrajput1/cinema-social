@@ -7,9 +7,10 @@ import MovieCard from "@/components/movies/MovieCard";
 import TrailerModal from "@/components/movies/TrailerModal";
 import LogMovieDialog from "@/components/movies/LogMovieDialog";
 import ReviewSection from "@/components/reviews/ReviewSection";
+import WikipediaInfoSheet from "@/components/common/WikipediaInfoSheet";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Eye, Heart, Plus, Share2, Clock, Calendar, Play, Check } from "lucide-react";
+import { Eye, Heart, Plus, Share2, Clock, Calendar, Play, Check, BookOpen } from "lucide-react";
 import { useMovieDetails, getImageUrl, getBackdropUrl, TMDBVideo } from "@/hooks/useTMDB";
 import { useAuth } from "@/hooks/useAuth";
 import { useWatchlist } from "@/hooks/useWatchlist";
@@ -22,6 +23,7 @@ const FilmDetail = () => {
   const navigate = useNavigate();
   const [trailerKey, setTrailerKey] = useState<string | null>(null);
   const [logDialogOpen, setLogDialogOpen] = useState(false);
+  const [wikiSheetOpen, setWikiSheetOpen] = useState(false);
 
   const { user } = useAuth();
   const { isInWatchlist, addToWatchlist, removeFromWatchlist } = useWatchlist();
@@ -248,6 +250,14 @@ const FilmDetail = () => {
                     </>
                   )}
                 </Button>
+                <Button 
+                  variant="outline" 
+                  className="gap-2"
+                  onClick={() => setWikiSheetOpen(true)}
+                >
+                  <BookOpen className="w-4 h-4" />
+                  Read Full Info
+                </Button>
                 <Button variant="ghost" size="icon">
                   <Share2 className="w-4 h-4" />
                 </Button>
@@ -395,6 +405,17 @@ const FilmDetail = () => {
             release_date: movie.release_date,
           }}
           onSubmit={handleLogSubmit}
+        />
+      )}
+
+      {/* Wikipedia Info Sheet */}
+      {movie && (
+        <WikipediaInfoSheet
+          open={wikiSheetOpen}
+          onOpenChange={setWikiSheetOpen}
+          title={movie.title}
+          year={movie.release_date ? new Date(movie.release_date).getFullYear().toString() : undefined}
+          mediaType="movie"
         />
       )}
     </div>
