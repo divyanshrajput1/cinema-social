@@ -7,6 +7,7 @@ export interface WikipediaData {
   url: string;
   sections: { [key: string]: string };
   hasSections: boolean;
+  isLimited?: boolean;
 }
 
 interface WikipediaParams {
