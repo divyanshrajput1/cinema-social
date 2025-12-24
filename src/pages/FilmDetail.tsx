@@ -7,7 +7,6 @@ import MovieCard from "@/components/movies/MovieCard";
 import TrailerModal from "@/components/movies/TrailerModal";
 import LogMovieDialog from "@/components/movies/LogMovieDialog";
 import ReviewSection from "@/components/reviews/ReviewSection";
-import WikipediaInfoSheet from "@/components/common/WikipediaInfoSheet";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Eye, Heart, Plus, Share2, Clock, Calendar, Play, Check, BookOpen } from "lucide-react";
@@ -23,7 +22,6 @@ const FilmDetail = () => {
   const navigate = useNavigate();
   const [trailerKey, setTrailerKey] = useState<string | null>(null);
   const [logDialogOpen, setLogDialogOpen] = useState(false);
-  const [wikiSheetOpen, setWikiSheetOpen] = useState(false);
 
   const { user } = useAuth();
   const { isInWatchlist, addToWatchlist, removeFromWatchlist } = useWatchlist();
@@ -253,7 +251,20 @@ const FilmDetail = () => {
                 <Button 
                   variant="outline" 
                   className="gap-2"
-                  onClick={() => setWikiSheetOpen(true)}
+                  onClick={() => {
+                    const params = new URLSearchParams({
+                      title: movie.title,
+                      type: 'movie',
+                      back: `/film/${id}`,
+                    });
+                    if (movie.release_date) {
+                      params.set('year', new Date(movie.release_date).getFullYear().toString());
+                    }
+                    if (movie.poster_path) {
+                      params.set('poster', getImageUrl(movie.poster_path, 'w300'));
+                    }
+                    navigate(`/wikipedia?${params.toString()}`);
+                  }}
                 >
                   <BookOpen className="w-4 h-4" />
                   Read Full Info
@@ -405,17 +416,6 @@ const FilmDetail = () => {
             release_date: movie.release_date,
           }}
           onSubmit={handleLogSubmit}
-        />
-      )}
-
-      {/* Wikipedia Info Sheet */}
-      {movie && (
-        <WikipediaInfoSheet
-          open={wikiSheetOpen}
-          onOpenChange={setWikiSheetOpen}
-          title={movie.title}
-          year={movie.release_date ? new Date(movie.release_date).getFullYear().toString() : undefined}
-          mediaType="movie"
         />
       )}
     </div>
