@@ -10,6 +10,7 @@ import FilmDetail from "./pages/FilmDetail";
 import TVShows from "./pages/TVShows";
 import TVDetail from "./pages/TVDetail";
 import PersonDetail from "./pages/PersonDetail";
+import WikipediaView from "./pages/WikipediaView";
 import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
 import Watchlist from "./pages/Watchlist";
@@ -32,6 +33,7 @@ const App = () => (
             <Route path="/tv" element={<TVShows />} />
             <Route path="/tv/:id" element={<TVDetail />} />
             <Route path="/person/:id" element={<PersonDetail />} />
+            <Route path="/wikipedia" element={<WikipediaView />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/watchlist" element={<Watchlist />} />

@@ -9,7 +9,6 @@ import LogMovieDialog from "@/components/movies/LogMovieDialog";
 import ReviewSection from "@/components/reviews/ReviewSection";
 import SeasonList from "@/components/tv/SeasonList";
 import TMDBAttribution from "@/components/common/TMDBAttribution";
-import WikipediaInfoSheet from "@/components/common/WikipediaInfoSheet";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -27,7 +26,6 @@ const TVDetail = () => {
   const navigate = useNavigate();
   const [trailerKey, setTrailerKey] = useState<string | null>(null);
   const [logDialogOpen, setLogDialogOpen] = useState(false);
-  const [wikiSheetOpen, setWikiSheetOpen] = useState(false);
 
   const { user } = useAuth();
   const { isInWatchlist, addToWatchlist, removeFromWatchlist } = useWatchlist();
@@ -275,7 +273,20 @@ const TVDetail = () => {
                 <Button 
                   variant="outline" 
                   className="gap-2"
-                  onClick={() => setWikiSheetOpen(true)}
+                  onClick={() => {
+                    const params = new URLSearchParams({
+                      title: show.name,
+                      type: 'tv',
+                      back: `/tv/${id}`,
+                    });
+                    if (show.first_air_date) {
+                      params.set('year', new Date(show.first_air_date).getFullYear().toString());
+                    }
+                    if (show.poster_path) {
+                      params.set('poster', getImageUrl(show.poster_path, 'w300'));
+                    }
+                    navigate(`/wikipedia?${params.toString()}`);
+                  }}
                 >
                   <BookOpen className="w-4 h-4" />
                   Read Full Info
@@ -484,17 +495,6 @@ const TVDetail = () => {
             release_date: show.first_air_date,
           }}
           onSubmit={handleLogSubmit}
-          mediaType="tv"
-        />
-      )}
-
-      {/* Wikipedia Info Sheet */}
-      {show && (
-        <WikipediaInfoSheet
-          open={wikiSheetOpen}
-          onOpenChange={setWikiSheetOpen}
-          title={show.name}
-          year={show.first_air_date ? new Date(show.first_air_date).getFullYear().toString() : undefined}
           mediaType="tv"
         />
       )}
