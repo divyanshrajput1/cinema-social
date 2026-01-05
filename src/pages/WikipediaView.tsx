@@ -4,8 +4,8 @@ import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { ArrowLeft, ExternalLink, ChevronRight, AlertCircle, List } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { ArrowLeft, ExternalLink, ChevronRight, AlertCircle, List, Search, X } from "lucide-react";
 import { useWikipediaFull, WikipediaSection, WikipediaTocItem } from "@/hooks/useWikipediaFull";
 import { cn } from "@/lib/utils";
 import DOMPurify from "dompurify";
@@ -152,20 +152,49 @@ const Infobox = ({
 };
 
 const WikipediaView = () => {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState<string>('');
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [customTitle, setCustomTitle] = useState<string | null>(null);
   const contentRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
-  const title = searchParams.get('title') || '';
+  const originalTitle = searchParams.get('title') || '';
   const year = searchParams.get('year') || undefined;
   const mediaType = (searchParams.get('type') || 'movie') as 'movie' | 'tv';
   const posterUrl = searchParams.get('poster') || undefined;
   const backUrl = searchParams.get('back') || '/';
 
+  // Use custom title if set, otherwise use URL title
+  const activeTitle = customTitle || originalTitle;
+
   const { data, isLoading, error, refetch } = useWikipediaFull(
-    title ? { title, year, mediaType } : null
+    activeTitle ? { title: activeTitle, year: customTitle ? undefined : year, mediaType } : null
   );
+
+  // Handle search submission
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      setCustomTitle(searchQuery.trim());
+      setIsSearchOpen(false);
+      setSearchQuery('');
+    }
+  };
+
+  // Reset to original title
+  const resetToOriginal = () => {
+    setCustomTitle(null);
+  };
+
+  // Focus search input when opened
+  useEffect(() => {
+    if (isSearchOpen && searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, [isSearchOpen]);
 
   // Handle section navigation
   const scrollToSection = (sectionId: string) => {
@@ -199,7 +228,7 @@ const WikipediaView = () => {
     return () => observer.disconnect();
   }, [data?.sections]);
 
-  if (!title) {
+  if (!originalTitle && !customTitle) {
     return (
       <div className="min-h-screen bg-background">
         <Navbar />
@@ -220,31 +249,102 @@ const WikipediaView = () => {
       <header className="border-b border-border bg-card/50 sticky top-0 z-40 backdrop-blur-sm">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 min-w-0 flex-1">
               <Button 
                 variant="ghost" 
                 size="sm" 
                 onClick={() => navigate(backUrl)}
-                className="gap-2"
+                className="gap-2 shrink-0"
               >
                 <ArrowLeft className="w-4 h-4" />
-                Back
+                <span className="hidden sm:inline">Back</span>
               </Button>
+              
+              {/* Title and custom search indicator */}
+              <div className="flex items-center gap-2 min-w-0 flex-1">
+                {data && (
+                  <h1 className="font-display text-xl font-semibold truncate">
+                    {data.title}
+                  </h1>
+                )}
+                {customTitle && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={resetToOriginal}
+                    className="shrink-0 text-xs text-muted-foreground hover:text-foreground gap-1"
+                  >
+                    <X className="w-3 h-3" />
+                    Reset
+                  </Button>
+                )}
+              </div>
+            </div>
+
+            {/* Search and External Link */}
+            <div className="flex items-center gap-2 shrink-0">
+              {/* Search Form */}
+              {isSearchOpen ? (
+                <form onSubmit={handleSearch} className="flex items-center gap-2">
+                  <Input
+                    ref={searchInputRef}
+                    type="text"
+                    placeholder="Search Wikipedia..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-48 sm:w-64 h-9"
+                  />
+                  <Button type="submit" size="sm" disabled={!searchQuery.trim()}>
+                    Search
+                  </Button>
+                  <Button 
+                    type="button" 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={() => {
+                      setIsSearchOpen(false);
+                      setSearchQuery('');
+                    }}
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                </form>
+              ) : (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsSearchOpen(true)}
+                  className="gap-2"
+                >
+                  <Search className="w-4 h-4" />
+                  <span className="hidden sm:inline">Search</span>
+                </Button>
+              )}
+              
               {data && (
-                <h1 className="font-display text-xl font-semibold truncate">
-                  {data.title}
-                </h1>
+                <Button variant="outline" size="sm" asChild className="hidden sm:flex">
+                  <a href={data.url} target="_blank" rel="noopener noreferrer" className="gap-2">
+                    <ExternalLink className="w-4 h-4" />
+                    Wikipedia
+                  </a>
+                </Button>
               )}
             </div>
-            {data && (
-              <Button variant="outline" size="sm" asChild>
-                <a href={data.url} target="_blank" rel="noopener noreferrer" className="gap-2">
-                  <ExternalLink className="w-4 h-4" />
-                  View on Wikipedia
-                </a>
-              </Button>
-            )}
           </div>
+          
+          {/* Custom search notice */}
+          {customTitle && (
+            <div className="mt-2 text-xs text-muted-foreground flex items-center gap-2">
+              <AlertCircle className="w-3 h-3" />
+              Showing results for custom search. 
+              <button 
+                onClick={resetToOriginal}
+                className="text-primary hover:underline"
+              >
+                Return to "{originalTitle}"
+              </button>
+            </div>
+          )}
         </div>
       </header>
 
@@ -287,7 +387,7 @@ const WikipediaView = () => {
             </h2>
             <p className="text-muted-foreground mb-6 max-w-md">
               {error.message === 'No Wikipedia article found' 
-                ? `We couldn't find a Wikipedia article for "${title}".`
+                ? `We couldn't find a Wikipedia article for "${activeTitle}".`
                 : 'There was an error fetching information from Wikipedia.'}
             </p>
             <div className="flex gap-3">
@@ -296,7 +396,7 @@ const WikipediaView = () => {
               </Button>
               <Button asChild>
                 <a 
-                  href={`https://en.wikipedia.org/wiki/Special:Search?search=${encodeURIComponent(title + (mediaType === 'tv' ? ' TV series' : ' film'))}`}
+                  href={`https://en.wikipedia.org/wiki/Special:Search?search=${encodeURIComponent(activeTitle + (mediaType === 'tv' ? ' TV series' : ' film'))}`}
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="gap-2"
