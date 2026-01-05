@@ -97,6 +97,64 @@ const WikiSection = ({ section }: { section: WikipediaSection }) => {
   );
 };
 
+// Clean infobox value from MediaWiki artifacts
+const cleanInfoboxValue = (html: string): string => {
+  // Create a temporary element to parse HTML
+  const temp = document.createElement('div');
+  temp.innerHTML = html;
+
+  // Remove unwanted elements (edit links, references, etc.)
+  temp.querySelectorAll('.reference, .mw-editsection, sup, .noprint, .mw-empty-elt').forEach(el => el.remove());
+
+  // Handle lists - convert to comma-separated text
+  const lists = temp.querySelectorAll('ul, ol');
+  lists.forEach(list => {
+    const items = Array.from(list.querySelectorAll('li'));
+    const text = items.map(li => li.textContent?.trim()).filter(Boolean).join(', ');
+    const textNode = document.createTextNode(text);
+    list.parentNode?.replaceChild(textNode, list);
+  });
+
+  // Handle line breaks and divs with class plainlist
+  temp.querySelectorAll('.plainlist, .hlist').forEach(el => {
+    const text = el.textContent?.trim() || '';
+    const textNode = document.createTextNode(text);
+    el.parentNode?.replaceChild(textNode, el);
+  });
+
+  // Get text content
+  let text = temp.textContent || temp.innerText || '';
+
+  // Decode HTML entities
+  text = text
+    .replace(/&#160;/g, ' ')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&#91;/g, '[')
+    .replace(/&#93;/g, ']')
+    .replace(/&#38;/g, '&')
+    .replace(/&amp;/g, '&')
+    .replace(/&#39;/g, "'")
+    .replace(/&apos;/g, "'")
+    .replace(/&#34;/g, '"')
+    .replace(/&quot;/g, '"');
+
+  // Clean up whitespace
+  text = text
+    .replace(/\s+/g, ' ')  // Multiple spaces to single space
+    .replace(/\s*,\s*/g, ', ')  // Normalize comma spacing
+    .replace(/^\s*,\s*/, '')  // Remove leading commas
+    .replace(/\s*,\s*$/, '')  // Remove trailing commas
+    .trim();
+
+  // Remove bracket references like [1], [2], etc.
+  text = text.replace(/\[\d+\]/g, '');
+
+  // Clean up any remaining artifacts
+  text = text.replace(/\s{2,}/g, ' ').trim();
+
+  return text;
+};
+
 // Infobox component
 const Infobox = ({ 
   data, 
@@ -141,7 +199,7 @@ const Infobox = ({
                 {key}
               </th>
               <td className="p-2 text-xs">
-                {value}
+                {cleanInfoboxValue(value)}
               </td>
             </tr>
           ))}
