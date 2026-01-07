@@ -99,34 +99,10 @@ const WikiSection = ({ section }: { section: WikipediaSection }) => {
 
 // Clean infobox value from MediaWiki artifacts
 const cleanInfoboxValue = (html: string): string => {
-  // Create a temporary element to parse HTML
-  const temp = document.createElement('div');
-  temp.innerHTML = html;
+  if (!html || typeof html !== 'string') return '';
 
-  // Remove unwanted elements (edit links, references, etc.)
-  temp.querySelectorAll('.reference, .mw-editsection, sup, .noprint, .mw-empty-elt').forEach(el => el.remove());
-
-  // Handle lists - convert to comma-separated text
-  const lists = temp.querySelectorAll('ul, ol');
-  lists.forEach(list => {
-    const items = Array.from(list.querySelectorAll('li'));
-    const text = items.map(li => li.textContent?.trim()).filter(Boolean).join(', ');
-    const textNode = document.createTextNode(text);
-    list.parentNode?.replaceChild(textNode, list);
-  });
-
-  // Handle line breaks and divs with class plainlist
-  temp.querySelectorAll('.plainlist, .hlist').forEach(el => {
-    const text = el.textContent?.trim() || '';
-    const textNode = document.createTextNode(text);
-    el.parentNode?.replaceChild(textNode, el);
-  });
-
-  // Get text content
-  let text = temp.textContent || temp.innerText || '';
-
-  // Decode HTML entities
-  text = text
+  // First, decode HTML entities in the raw string
+  let decoded = html
     .replace(/&#160;/g, ' ')
     .replace(/&nbsp;/g, ' ')
     .replace(/&#91;/g, '[')
@@ -136,20 +112,143 @@ const cleanInfoboxValue = (html: string): string => {
     .replace(/&#39;/g, "'")
     .replace(/&apos;/g, "'")
     .replace(/&#34;/g, '"')
-    .replace(/&quot;/g, '"');
+    .replace(/&quot;/g, '"')
+    .replace(/&#8211;/g, '–')
+    .replace(/&#8212;/g, '—')
+    .replace(/&ndash;/g, '–')
+    .replace(/&mdash;/g, '—');
+
+  // Remove style tags and their content
+  decoded = decoded.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '');
+  
+  // Remove script tags
+  decoded = decoded.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '');
+
+  // Remove CSS class declarations that leaked into text
+  decoded = decoded.replace(/\.mw-parser-output[^{]*\{[^}]*\}/g, '');
+  decoded = decoded.replace(/\.plainlist[^{]*\{[^}]*\}/g, '');
+  decoded = decoded.replace(/\.hlist[^{]*\{[^}]*\}/g, '');
+  decoded = decoded.replace(/\.nowrap[^{]*\{[^}]*\}/g, '');
+
+  // Create a temporary element to parse HTML
+  const temp = document.createElement('div');
+  temp.innerHTML = decoded;
+
+  // Remove unwanted elements completely
+  const selectorsToRemove = [
+    '.reference',
+    '.mw-editsection', 
+    'sup.reference',
+    '.noprint',
+    '.mw-empty-elt',
+    '.navbar',
+    '.mbox-small',
+    'style',
+    'script',
+    '.mw-parser-output > style',
+  ];
+  
+  selectorsToRemove.forEach(selector => {
+    temp.querySelectorAll(selector).forEach(el => el.remove());
+  });
+
+  // Remove all style attributes
+  temp.querySelectorAll('[style]').forEach(el => el.removeAttribute('style'));
+
+  // Remove MediaWiki wrapper classes but keep content
+  const wrapperSelectors = [
+    '.mw-parser-output',
+    '.plainlist', 
+    '.hlist',
+    '.nowrap',
+    '.vcard',
+    '.url',
+    '.nickname',
+    '.fn',
+    '.role',
+  ];
+
+  wrapperSelectors.forEach(selector => {
+    temp.querySelectorAll(selector).forEach(wrapper => {
+      // Replace wrapper with its children
+      while (wrapper.firstChild) {
+        wrapper.parentNode?.insertBefore(wrapper.firstChild, wrapper);
+      }
+      wrapper.remove();
+    });
+  });
+
+  // Process lists - extract items as comma-separated values
+  temp.querySelectorAll('ul, ol').forEach(list => {
+    const items = Array.from(list.querySelectorAll('li'));
+    const textItems: string[] = [];
+    
+    items.forEach(li => {
+      // Get text content, but handle nested lists by getting direct text only
+      const clone = li.cloneNode(true) as HTMLElement;
+      clone.querySelectorAll('ul, ol').forEach(nested => nested.remove());
+      const text = clone.textContent?.trim();
+      if (text && text.length > 0) {
+        textItems.push(text);
+      }
+    });
+    
+    if (textItems.length > 0) {
+      const textNode = document.createTextNode(textItems.join(', '));
+      list.parentNode?.replaceChild(textNode, list);
+    } else {
+      list.remove();
+    }
+  });
+
+  // Convert <br> tags to commas or spaces
+  temp.querySelectorAll('br').forEach(br => {
+    const textNode = document.createTextNode(', ');
+    br.parentNode?.replaceChild(textNode, br);
+  });
+
+  // Handle links - keep the text content
+  temp.querySelectorAll('a').forEach(link => {
+    const text = link.textContent || '';
+    const textNode = document.createTextNode(text);
+    link.parentNode?.replaceChild(textNode, link);
+  });
+
+  // Get final text content
+  let text = temp.textContent || temp.innerText || '';
+
+  // Remove any remaining CSS-like content (class definitions that leaked)
+  text = text.replace(/\.[a-z-]+\s*\{[^}]*\}/gi, '');
+  text = text.replace(/\.[a-z-]+\s*[a-z-]+\s*\{[^}]*\}/gi, '');
+
+  // Remove bracket references like [1], [2], [a], [note 1], etc.
+  text = text.replace(/\[\d+\]/g, '');
+  text = text.replace(/\[[a-z]\]/gi, '');
+  text = text.replace(/\[note\s*\d+\]/gi, '');
+  text = text.replace(/\[citation needed\]/gi, '');
 
   // Clean up whitespace
   text = text
-    .replace(/\s+/g, ' ')  // Multiple spaces to single space
-    .replace(/\s*,\s*/g, ', ')  // Normalize comma spacing
-    .replace(/^\s*,\s*/, '')  // Remove leading commas
-    .replace(/\s*,\s*$/, '')  // Remove trailing commas
+    .replace(/\s+/g, ' ')           // Multiple spaces to single space
+    .replace(/\s*,\s*,\s*/g, ', ')  // Multiple commas
+    .replace(/,\s*,/g, ',')         // Double commas
+    .replace(/\s*,\s*/g, ', ')      // Normalize comma spacing
+    .replace(/^\s*,\s*/, '')        // Remove leading commas
+    .replace(/\s*,\s*$/, '')        // Remove trailing commas
+    .replace(/,\s*\)/g, ')')        // Clean comma before parenthesis
+    .replace(/\(\s*,/g, '(')        // Clean comma after parenthesis
     .trim();
 
-  // Remove bracket references like [1], [2], etc.
-  text = text.replace(/\[\d+\]/g, '');
+  // Final cleanup - remove any stray CSS or markup artifacts
+  text = text.replace(/list-style[^;]*;?/gi, '');
+  text = text.replace(/margin[^;]*;?/gi, '');
+  text = text.replace(/padding[^;]*;?/gi, '');
+  text = text.replace(/display[^;]*;?/gi, '');
+  text = text.replace(/font[^;]*;?/gi, '');
+  text = text.replace(/text-align[^;]*;?/gi, '');
+  text = text.replace(/;+/g, '');
 
-  // Clean up any remaining artifacts
+  // Clean up any remaining multiple spaces
   text = text.replace(/\s{2,}/g, ' ').trim();
 
   return text;
