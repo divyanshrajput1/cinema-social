@@ -290,7 +290,7 @@ const WikipediaView = () => {
     return (
       <div className="min-h-screen bg-background">
         <Navbar />
-        <div className="container mx-auto px-4 py-32 text-center">
+        <div className="container mx-auto px-4 pt-32 pb-16 text-center">
           <h1 className="text-2xl font-bold text-foreground mb-4">No title specified</h1>
           <Button onClick={() => navigate('/')}>Back to Home</Button>
         </div>
@@ -304,7 +304,7 @@ const WikipediaView = () => {
       <Navbar />
 
       {/* Header */}
-      <header className="border-b border-border bg-card/50 sticky top-0 z-40 backdrop-blur-sm">
+      <header className="border-b border-border bg-card/50 sticky top-16 z-40 backdrop-blur-sm">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-4 min-w-0 flex-1">
@@ -407,7 +407,7 @@ const WikipediaView = () => {
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 pt-8 pb-16">
         {/* Loading State */}
         {isLoading && (
           <div className="max-w-4xl mx-auto">
