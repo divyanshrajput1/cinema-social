@@ -53,7 +53,7 @@ const PersonDetail = () => {
     return (
       <div className="min-h-screen bg-background">
         <Navbar />
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto px-4 pt-24 pb-8">
           <div className="grid md:grid-cols-[300px_1fr] gap-8">
             <Skeleton className="aspect-[2/3] rounded-lg" />
             <div className="space-y-4">
@@ -72,7 +72,7 @@ const PersonDetail = () => {
     return (
       <div className="min-h-screen bg-background">
         <Navbar />
-        <div className="container mx-auto px-4 py-20 text-center">
+        <div className="container mx-auto px-4 pt-24 pb-20 text-center">
           <h1 className="text-2xl font-bold text-foreground mb-4">Person not found</h1>
           <p className="text-muted-foreground">The person you're looking for doesn't exist or couldn't be loaded.</p>
         </div>
@@ -89,7 +89,7 @@ const PersonDetail = () => {
     <div className="min-h-screen bg-background">
       <Navbar />
       
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-4 pt-24 pb-8">
         {/* Profile Header */}
         <div className="grid md:grid-cols-[300px_1fr] gap-8 mb-12">
           {/* Profile Image */}
