@@ -19,7 +19,7 @@ const wikiStyles = {
   paragraph: "mb-4",
   list: "ml-6 mb-4 list-disc",
   table: "border-collapse w-full my-4 text-sm",
-  infobox: "float-right ml-6 mb-4 w-72 border border-border bg-muted/30 text-sm",
+  infobox: "w-full border border-border bg-muted/30 text-sm rounded-lg overflow-hidden",
 };
 
 // Table of Contents component
@@ -87,7 +87,7 @@ const WikiSection = ({ section }: { section: WikipediaSection }) => {
                        wikiStyles.heading4;
 
   return (
-    <section id={section.id} className="scroll-mt-24">
+    <section id={section.id} className="scroll-mt-32">
       <HeadingTag className={headingClass}>{section.title}</HeadingTag>
       <div 
         className="wiki-content"
@@ -399,11 +399,11 @@ const WikipediaView = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background pt-16">
       <Navbar />
 
-      {/* Header */}
-      <header className="border-b border-border bg-card/50 sticky top-16 z-40 backdrop-blur-sm">
+      {/* Header - positioned below navbar */}
+      <header className="border-b border-border bg-card/95 sticky top-16 z-30 backdrop-blur-sm">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-4 min-w-0 flex-1">
@@ -569,35 +569,40 @@ const WikipediaView = () => {
         {/* Article Content */}
         {data && (
           <article ref={contentRef} className={cn("max-w-4xl mx-auto", wikiStyles.article)}>
-            {/* Infobox */}
-            {(data.infobox || posterUrl) && (
-              <Infobox 
-                data={data.infobox?.data || {}} 
-                posterUrl={posterUrl}
-                title={data.title}
-              />
-            )}
+            {/* Two-column layout for desktop: content + infobox */}
+            <div className="lg:flex lg:gap-8">
+              {/* Main content column */}
+              <div className="flex-1 min-w-0">
+                {/* Article Title */}
+                <h1 className="font-serif text-3xl font-normal border-b border-border pb-2 mb-4">
+                  {data.title}
+                </h1>
 
-            {/* Article Title */}
-            <h1 className="font-serif text-3xl font-normal border-b border-border pb-2 mb-4">
-              {data.title}
-            </h1>
+                {/* Lead Section */}
+                {data.leadSection && (
+                  <div 
+                    className="wiki-content mb-8"
+                    dangerouslySetInnerHTML={{ 
+                      __html: DOMPurify.sanitize(data.leadSection, {
+                        ALLOWED_TAGS: ['p', 'b', 'i', 'em', 'strong', 'a', 'br', 'span', 'sup'],
+                        ALLOWED_ATTR: ['href', 'target', 'rel'],
+                      })
+                    }}
+                  />
+                )}
+              </div>
 
-            {/* Lead Section */}
-            {data.leadSection && (
-              <div 
-                className="wiki-content mb-8"
-                dangerouslySetInnerHTML={{ 
-                  __html: DOMPurify.sanitize(data.leadSection, {
-                    ALLOWED_TAGS: ['p', 'b', 'i', 'em', 'strong', 'a', 'br', 'span', 'sup'],
-                    ALLOWED_ATTR: ['href', 'target', 'rel'],
-                  })
-                }}
-              />
-            )}
-
-            {/* Clear float after lead */}
-            <div className="clear-both" />
+              {/* Infobox column */}
+              {(data.infobox || posterUrl) && (
+                <div className="lg:w-72 lg:flex-shrink-0 mb-8 lg:mb-0">
+                  <Infobox 
+                    data={data.infobox?.data || {}} 
+                    posterUrl={posterUrl}
+                    title={data.title}
+                  />
+                </div>
+              )}
+            </div>
 
             {/* Table of Contents */}
             {data.toc.length > 0 && (
