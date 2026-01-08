@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -63,6 +64,7 @@ const Navbar = () => {
 
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center gap-3">
+            <ThemeToggle />
             <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground" asChild>
               <Link to="/films">
                 <Search className="w-5 h-5" />
@@ -147,6 +149,7 @@ const Navbar = () => {
                 </Link>
               ))}
               <div className="flex items-center gap-3 pt-4 border-t border-border/50">
+                <ThemeToggle />
                 {user ? (
                   <>
                     <Button variant="letterboxd" size="sm" className="gap-2 flex-1" asChild>
