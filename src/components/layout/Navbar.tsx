@@ -1,5 +1,5 @@
 import { Link, useLocation } from "react-router-dom";
-import { Film, Search, User, Plus, Menu, X, Clock, Calendar, LogOut } from "lucide-react";
+import { Film, Search, User, Plus, Menu, X, Clock, Calendar, LogOut, MessageSquare } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
@@ -21,6 +21,7 @@ const Navbar = () => {
   const navLinks = [
     { path: "/films", label: "Films" },
     { path: "/tv", label: "TV Shows" },
+    { path: "/reviews", label: "Reviews", requiresAuth: true },
     { path: "/diary", label: "Diary", requiresAuth: true },
     { path: "/watchlist", label: "Watchlist", requiresAuth: true },
   ];
@@ -91,6 +92,12 @@ const Navbar = () => {
                       <Link to="/profile" className="flex items-center gap-2">
                         <User className="w-4 h-4" />
                         Profile
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/reviews" className="flex items-center gap-2">
+                        <MessageSquare className="w-4 h-4" />
+                        Reviews
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
