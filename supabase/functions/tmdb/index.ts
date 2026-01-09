@@ -129,6 +129,16 @@ serve(async (req) => {
         url = `${TMDB_BASE_URL}/search/multi?api_key=${TMDB_API_KEY}&query=${encodeURIComponent(query)}&page=${page}`;
         break;
       
+      // Review endpoints
+      case 'movie_reviews':
+        if (!movieId) throw new Error('Movie ID is required');
+        url = `${TMDB_BASE_URL}/movie/${movieId}/reviews?api_key=${TMDB_API_KEY}&page=${page}`;
+        break;
+      case 'tv_reviews':
+        if (!tvId) throw new Error('TV ID is required');
+        url = `${TMDB_BASE_URL}/tv/${tvId}/reviews?api_key=${TMDB_API_KEY}&page=${page}`;
+        break;
+      
       // Person endpoints
       case 'person_details':
         if (!personId) throw new Error('Person ID is required');
