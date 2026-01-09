@@ -8,13 +8,14 @@ import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { getImageUrl } from "@/hooks/useTMDB";
-import { User, Film, Clock, Calendar, Settings, LogOut } from "lucide-react";
+import { Film, Clock, Calendar, Settings, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import { AvatarUpload } from "@/components/profile/AvatarUpload";
 
 const Profile = () => {
   const { user, loading: authLoading, signOut } = useAuth();
@@ -100,9 +101,11 @@ const Profile = () => {
         {/* Profile Header */}
         <div className="glass-card rounded-lg p-8 mb-8">
           <div className="flex flex-col md:flex-row gap-6 items-start">
-            <div className="w-24 h-24 rounded-full bg-muted flex items-center justify-center shrink-0">
-              <User className="w-12 h-12 text-muted-foreground" />
-            </div>
+            <AvatarUpload
+              userId={user!.id}
+              currentAvatarUrl={profile?.avatar_url || null}
+              onAvatarChange={() => refetch()}
+            />
             
             {isEditing ? (
               <div className="flex-1 space-y-4">
