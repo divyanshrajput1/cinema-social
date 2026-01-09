@@ -19,6 +19,7 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 import { useReviews, useReviewComments } from "@/hooks/useReviews";
 import WriteReviewDialog from "./WriteReviewDialog";
+import { UserAvatar } from "@/components/common/UserAvatar";
 import { toast } from "sonner";
 
 interface ReviewSectionProps {
@@ -199,18 +200,15 @@ const ReviewItem = ({ review, isOwner, onEdit, onDelete, onLike }: ReviewItemPro
   const [showComments, setShowComments] = useState(false);
 
   const displayName = review.profile?.display_name || review.profile?.username || "Film Lover";
-  const avatarUrl = review.profile?.avatar_url || `https://api.dicebear.com/7.x/avataaars/svg?seed=${review.user_id}`;
 
   return (
     <article className="glass-card rounded-xl p-4 md:p-6 transition-all duration-300 hover:border-border">
       <div className="flex gap-4">
-        <div className="w-10 h-10 rounded-full overflow-hidden bg-muted flex-shrink-0">
-          <img
-            src={avatarUrl}
-            alt={displayName}
-            className="w-full h-full object-cover"
-          />
-        </div>
+        <UserAvatar
+          src={review.profile?.avatar_url}
+          alt={displayName}
+          size="md"
+        />
 
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-4 mb-2">
@@ -307,19 +305,14 @@ const CommentsSection = ({ reviewId }: { reviewId: string }) => {
               comment.profile?.display_name ||
               comment.profile?.username ||
               "Film Lover";
-            const avatarUrl =
-              comment.profile?.avatar_url ||
-              `https://api.dicebear.com/7.x/avataaars/svg?seed=${comment.user_id}`;
 
             return (
               <div key={comment.id} className="flex gap-3">
-                <div className="w-8 h-8 rounded-full overflow-hidden bg-muted flex-shrink-0">
-                  <img
-                    src={avatarUrl}
-                    alt={displayName}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
+                <UserAvatar
+                  src={comment.profile?.avatar_url}
+                  alt={displayName}
+                  size="sm"
+                />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-medium text-foreground">

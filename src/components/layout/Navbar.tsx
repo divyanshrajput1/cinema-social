@@ -5,6 +5,9 @@ import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { UserAvatar } from "@/components/common/UserAvatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,6 +20,20 @@ const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
   const { user, signOut } = useAuth();
+
+  const { data: profile } = useQuery({
+    queryKey: ["navbar-profile", user?.id],
+    queryFn: async () => {
+      if (!user) return null;
+      const { data } = await supabase
+        .from("profiles")
+        .select("avatar_url, display_name")
+        .eq("user_id", user.id)
+        .maybeSingle();
+      return data;
+    },
+    enabled: !!user,
+  });
 
   const navLinks = [
     { path: "/films", label: "Films" },
@@ -83,8 +100,8 @@ const Navbar = () => {
                 
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground">
-                      <User className="w-5 h-5" />
+                    <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground rounded-full p-0">
+                      <UserAvatar src={profile?.avatar_url} alt={profile?.display_name || "User"} size="sm" />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-48">
