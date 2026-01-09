@@ -7,6 +7,7 @@ import TVCard from "@/components/tv/TVCard";
 import TrailerModal from "@/components/movies/TrailerModal";
 import LogMovieDialog from "@/components/movies/LogMovieDialog";
 import ReviewSection from "@/components/reviews/ReviewSection";
+import TMDBReviewsSection from "@/components/reviews/TMDBReviewsSection";
 import SeasonList from "@/components/tv/SeasonList";
 import TMDBAttribution from "@/components/common/TMDBAttribution";
 import { Button } from "@/components/ui/button";
@@ -363,7 +364,7 @@ const TVDetail = () => {
                 )}
               </TabsContent>
 
-              <TabsContent value="reviews">
+              <TabsContent value="reviews" className="space-y-12">
                 <ReviewSection 
                   movie={{
                     id: tvId,
@@ -372,6 +373,9 @@ const TVDetail = () => {
                   }}
                   mediaType="tv"
                 />
+
+                {/* TMDB Reviews Section */}
+                <TMDBReviewsSection mediaId={tvId} mediaType="tv" />
               </TabsContent>
             </Tabs>
           </div>

@@ -7,6 +7,7 @@ import MovieCard from "@/components/movies/MovieCard";
 import TrailerModal from "@/components/movies/TrailerModal";
 import LogMovieDialog from "@/components/movies/LogMovieDialog";
 import ReviewSection from "@/components/reviews/ReviewSection";
+import TMDBReviewsSection from "@/components/reviews/TMDBReviewsSection";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Eye, Heart, Plus, Share2, Clock, Calendar, Play, Check, BookOpen } from "lucide-react";
@@ -323,7 +324,7 @@ const FilmDetail = () => {
               </section>
             )}
 
-            {/* Reviews Section */}
+            {/* User Reviews Section */}
             <ReviewSection 
               movie={{
                 id: movieId,
@@ -331,6 +332,9 @@ const FilmDetail = () => {
                 poster_path: movie.poster_path,
               }}
             />
+
+            {/* TMDB Reviews Section */}
+            <TMDBReviewsSection mediaId={movieId} mediaType="movie" />
           </div>
 
           {/* Right Column - Stats & Similar */}
