@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import BackButton from "@/components/common/BackButton";
@@ -24,6 +24,15 @@ const FilmDetail = () => {
   const navigate = useNavigate();
   const [trailerKey, setTrailerKey] = useState<string | null>(null);
   const [logDialogOpen, setLogDialogOpen] = useState(false);
+  const [scrollY, setScrollY] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrollY(window.scrollY);
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const { user } = useAuth();
   const { isInWatchlist, addToWatchlist, removeFromWatchlist } = useWatchlist();
@@ -138,13 +147,16 @@ const FilmDetail = () => {
 
       {/* Hero Section */}
       <section className="relative min-h-[60vh] flex items-end mt-16">
-        {/* Backdrop */}
-        <div className="absolute inset-0 -top-16">
+        {/* Backdrop with Parallax */}
+        <div className="absolute inset-0 -top-16 overflow-hidden">
           {backdropUrl ? (
             <img
               src={backdropUrl}
               alt={movie.title}
-              className="w-full h-full object-cover"
+              className="w-full h-[120%] object-cover will-change-transform"
+              style={{
+                transform: `translateY(${scrollY * 0.3}px) scale(1.1)`,
+              }}
             />
           ) : (
             <div className="w-full h-full bg-muted" />
