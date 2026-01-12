@@ -2,6 +2,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import BackButton from "@/components/common/BackButton";
 import StarRating from "@/components/movies/StarRating";
 import MovieCard from "@/components/movies/MovieCard";
 import TrailerModal from "@/components/movies/TrailerModal";
@@ -281,6 +282,9 @@ const FilmDetail = () => {
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-12">
+        <div className="mb-6">
+          <BackButton />
+        </div>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
           {/* Left Column */}
           <div className="lg:col-span-2 space-y-12">

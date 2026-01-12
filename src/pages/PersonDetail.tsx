@@ -3,6 +3,7 @@ import { usePersonDetails, getProfileUrl, TMDBPersonCredit } from "@/hooks/useTM
 import { getImageUrl } from "@/hooks/useTMDB";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import BackButton from "@/components/common/BackButton";
 import TMDBAttribution from "@/components/common/TMDBAttribution";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
@@ -90,6 +91,9 @@ const PersonDetail = () => {
       <Navbar />
       
       <main className="container mx-auto px-4 pt-24 pb-8">
+        <div className="mb-6">
+          <BackButton />
+        </div>
         {/* Profile Header */}
         <div className="grid md:grid-cols-[300px_1fr] gap-8 mb-12">
           {/* Profile Image */}

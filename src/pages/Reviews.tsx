@@ -4,6 +4,7 @@ import { format } from "date-fns";
 import { Film, Tv, Star, Pencil, Trash2, MessageSquare } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import BackButton from "@/components/common/BackButton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -149,6 +150,9 @@ const Reviews = () => {
       <Navbar />
       
       <main className="container mx-auto px-4 pt-24 pb-16">
+        <div className="mb-6">
+          <BackButton />
+        </div>
         {/* Header */}
         <div className="mb-8">
           <h1 className="font-display text-3xl md:text-4xl font-semibold mb-2">
