@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import BackButton from "@/components/common/BackButton";
 import MovieCard from "@/components/movies/MovieCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -141,6 +142,9 @@ const Films = () => {
 
       <main className="pt-24 pb-16">
         <div className="container mx-auto px-4">
+          <div className="mb-6">
+            <BackButton />
+          </div>
           {/* Header */}
           <div className="mb-8">
             <h1 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-2">

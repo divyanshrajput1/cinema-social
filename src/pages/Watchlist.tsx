@@ -4,6 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useWatchlist } from "@/hooks/useWatchlist";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import BackButton from "@/components/common/BackButton";
 import { getImageUrl } from "@/hooks/useTMDB";
 import { Clock, Film, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -40,6 +41,9 @@ const Watchlist = () => {
     <div className="min-h-screen bg-background">
       <Navbar />
       <main className="pt-24 pb-16 container mx-auto px-4">
+        <div className="mb-6">
+          <BackButton />
+        </div>
         <div className="flex items-center gap-3 mb-8">
           <Clock className="w-8 h-8 text-primary" />
           <h1 className="font-display text-3xl font-semibold">Watchlist</h1>

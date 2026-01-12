@@ -7,6 +7,7 @@ import { useDiary } from "@/hooks/useDiary";
 import { supabase } from "@/integrations/supabase/client";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import BackButton from "@/components/common/BackButton";
 import { getImageUrl } from "@/hooks/useTMDB";
 import { Film, Clock, Calendar, Settings, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -98,6 +99,9 @@ const Profile = () => {
     <div className="min-h-screen bg-background">
       <Navbar />
       <main className="pt-24 pb-16 container mx-auto px-4">
+        <div className="mb-6">
+          <BackButton />
+        </div>
         {/* Profile Header */}
         <div className="glass-card rounded-lg p-8 mb-8">
           <div className="flex flex-col md:flex-row gap-6 items-start">

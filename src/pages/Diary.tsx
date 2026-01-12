@@ -4,6 +4,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useDiary } from "@/hooks/useDiary";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
+import BackButton from "@/components/common/BackButton";
 import { getImageUrl } from "@/hooks/useTMDB";
 import { Calendar, Film, Heart, Star, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -51,6 +52,9 @@ const Diary = () => {
     <div className="min-h-screen bg-background">
       <Navbar />
       <main className="pt-24 pb-16 container mx-auto px-4">
+        <div className="mb-6">
+          <BackButton />
+        </div>
         <div className="flex items-center gap-3 mb-8">
           <Calendar className="w-8 h-8 text-primary" />
           <h1 className="font-display text-3xl font-semibold">Diary</h1>
