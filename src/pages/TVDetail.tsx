@@ -83,8 +83,8 @@ const TVDetail = () => {
     return (
       <div className="min-h-screen bg-background">
         <Navbar />
-        <section className="relative min-h-[60vh] flex items-end pt-16">
-          <div className="absolute inset-0 bg-muted" />
+        <section className="relative min-h-[60vh] flex items-end mt-16">
+          <div className="absolute inset-0 -top-16 bg-muted" />
           <div className="relative container mx-auto px-4 pb-12">
             <div className="flex flex-col md:flex-row gap-8">
               <Skeleton className="w-48 md:w-64 aspect-[2/3] rounded-lg mx-auto md:mx-0" />
@@ -142,9 +142,9 @@ const TVDetail = () => {
       <Navbar />
 
       {/* Hero Section */}
-      <section className="relative min-h-[60vh] flex items-end pt-16">
+      <section className="relative min-h-[60vh] flex items-end mt-16">
         {/* Backdrop */}
-        <div className="absolute inset-0">
+        <div className="absolute inset-0 -top-16">
           {backdropUrl ? (
             <img
               src={backdropUrl}
