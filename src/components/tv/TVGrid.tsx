@@ -1,5 +1,6 @@
 import TVCard from "./TVCard";
 import { Skeleton } from "@/components/ui/skeleton";
+import { motion } from "framer-motion";
 
 interface TVShow {
   id: number;
@@ -22,14 +23,20 @@ const TVGrid = ({ title, subtitle, shows, onShowClick, isLoading }: TVGridProps)
     <section className="py-12">
       <div className="container mx-auto px-4">
         {/* Header */}
-        <div className="mb-8">
+        <motion.div 
+          className="mb-8"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+        >
           <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground">
             {title}
           </h2>
           {subtitle && (
             <p className="text-muted-foreground mt-1">{subtitle}</p>
           )}
-        </div>
+        </motion.div>
 
         {/* Loading State */}
         {isLoading && (
@@ -42,24 +49,15 @@ const TVGrid = ({ title, subtitle, shows, onShowClick, isLoading }: TVGridProps)
           </div>
         )}
 
-        {/* Grid */}
+        {/* Grid with staggered animation */}
         {!isLoading && (
           <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 gap-4 md:gap-6">
             {shows.map((show, index) => (
-              <div
+              <TVCard
                 key={show.id}
-                className="animate-fade-in"
-                style={{ animationDelay: `${index * 0.05}s` }}
-              >
-                <TVCard
-                  id={show.id}
-                  name={show.name}
-                  posterPath={show.posterPath}
-                  year={show.year}
-                  rating={show.rating}
-                  onClick={() => onShowClick?.(show.id)}
-                />
-              </div>
+                {...show}
+                onClick={() => onShowClick?.(show.id)}
+              />
             ))}
           </div>
         )}
