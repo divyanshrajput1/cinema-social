@@ -1,0 +1,52 @@
+{
+  "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
+
+  "productName": "CineVault",
+  "version": "0.1.0",
+  "identifier": "com.divyansh.cinevault",
+
+  "build": {
+    "frontendDist": "../dist",
+    "devUrl": "http://localhost:8081",
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build"
+  },
+
+  "app": {
+    "windows": [
+      {
+        "title": "CineVault",
+        "width": 800,
+        "height": 600,
+        "resizable": true,
+        "fullscreen": false
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ]
+  },
+
+  "plugins": {
+    "updater": {
+      "active": true,
+      "dialog": true,
+      "endpoints": [
+        "https://github.com/divyanshrajput1/cinema-social/releases/latest/download/update.json"
+      ],
+      "pubkey": "PdW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEM1NjE3NjEzNERERUUzQkMKUldTODQ5NU5FM1poeGZvYjZmNWg1NHhBZVMxNHE3ZnVqL2ZKQTFxN2craS9vYU1ZVGJmenVIQ2kK"
+    }
+  }
+}
