@@ -86,7 +86,7 @@ const FilmDetail = () => {
     return (
       <div className="min-h-screen bg-background">
         <Navbar />
-        <section className="relative min-h-[60vh] flex items-end mt-16">
+        <section className="relative flex items-end py-16">
           <div className="absolute inset-0 -top-16 bg-muted" />
           <div className="relative container mx-auto px-4 pb-12">
             <div className="flex flex-col md:flex-row gap-8">
@@ -146,7 +146,7 @@ const FilmDetail = () => {
       <Navbar />
 
       {/* Hero Section */}
-      <section className="relative min-h-[60vh] flex items-end mt-16">
+      <section className="relative flex items-end py-16">
         {/* Backdrop with Parallax */}
         <div className="absolute inset-0 -top-16 overflow-hidden">
           {backdropUrl ? (
@@ -293,7 +293,7 @@ const FilmDetail = () => {
       </section>
 
       {/* Main Content */}
-      <div className="container mx-auto px-4 py-12">
+      <div className="container mx-auto px-4 pt-16 pb-12">
         <div className="mb-6">
           <BackButton />
         </div>
