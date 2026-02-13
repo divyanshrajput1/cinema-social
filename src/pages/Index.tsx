@@ -7,7 +7,9 @@ import FeaturedMovie from "@/components/movies/FeaturedMovie";
 import MovieGrid from "@/components/movies/MovieGrid";
 import TVGrid from "@/components/tv/TVGrid";
 import TrailerModal from "@/components/movies/TrailerModal";
+import HorizontalShowcase from "@/components/movies/HorizontalShowcase";
 import CinematicIntro from "@/components/common/CinematicIntro";
+import FilmGrainOverlay from "@/components/common/FilmGrainOverlay";
 import { useTrending, usePopular, useTopRated, useNowPlaying, TMDBMovie, useMovieDetails } from "@/hooks/useTMDB";
 import { useTVTrending, useTVPopular, TMDBTVShow } from "@/hooks/useTMDBTV";
 import { Button } from "@/components/ui/button";
@@ -15,6 +17,7 @@ import { Users, Film, Star } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useIntroShown } from "@/hooks/useIntroShown";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
+import { useGSAPSmoothScroll } from "@/hooks/useGSAPSmoothScroll";
 
 const transformMovies = (movies: TMDBMovie[] = []) => {
   return movies.map((movie) => ({
@@ -43,74 +46,53 @@ const Index = () => {
   const [introComplete, setIntroComplete] = useState(hasShownIntro);
   const prefersReducedMotion = useReducedMotion();
 
+  // Enable GSAP smooth scroll on homepage
+  useGSAPSmoothScroll();
+
   const { data: trending, isLoading: trendingLoading } = useTrending();
   const { data: popular, isLoading: popularLoading } = usePopular();
   const { data: topRated, isLoading: topRatedLoading } = useTopRated();
   const { data: nowPlaying, isLoading: nowPlayingLoading } = useNowPlaying();
   
-  // TV Shows data
   const { data: tvTrending, isLoading: tvTrendingLoading } = useTVTrending();
   const { data: tvPopular, isLoading: tvPopularLoading } = useTVPopular();
   
-  // Get featured movie details (first trending movie)
   const featuredMovieId = trending?.results?.[0]?.id;
   const { data: featuredMovie, isLoading: featuredLoading } = useMovieDetails(featuredMovieId);
 
-  const handleMovieClick = (id: number) => {
-    navigate(`/film/${id}`);
-  };
-
-  const handleTVClick = (id: number) => {
-    navigate(`/tv/${id}`);
-  };
+  const handleMovieClick = (id: number) => navigate(`/film/${id}`);
+  const handleTVClick = (id: number) => navigate(`/tv/${id}`);
 
   const handleIntroComplete = () => {
     markIntroShown();
     setIntroComplete(true);
   };
 
-  // Stats section animation variants
   const statsContainerVariants = {
     hidden: {},
     visible: {
-      transition: {
-        staggerChildren: 0.15,
-        delayChildren: 0.2,
-      },
+      transition: { staggerChildren: 0.15, delayChildren: 0.2 },
     },
   };
 
   const statItemVariants = {
-    hidden: { 
-      opacity: 0, 
-      y: 40,
-      rotateX: -15,
-    },
+    hidden: { opacity: 0, y: 40, rotateX: -15 },
     visible: { 
-      opacity: 1, 
-      y: 0,
-      rotateX: 0,
-      transition: {
-        duration: 0.6,
-      },
+      opacity: 1, y: 0, rotateX: 0,
+      transition: { duration: 0.6 },
     },
   };
 
   const ctaVariants = {
     hidden: { opacity: 0, y: 60, scale: 0.95 },
     visible: { 
-      opacity: 1, 
-      y: 0, 
-      scale: 1,
-      transition: {
-        duration: 0.8,
-      },
+      opacity: 1, y: 0, scale: 1,
+      transition: { duration: 0.8 },
     },
   };
 
   return (
     <>
-      {/* Cinematic Intro */}
       {!introComplete && (
         <CinematicIntro onComplete={handleIntroComplete} />
       )}
@@ -121,6 +103,9 @@ const Index = () => {
         animate={{ opacity: introComplete ? 1 : 0 }}
         transition={{ duration: 0.5 }}
       >
+        {/* Homepage-only film grain overlay */}
+        <FilmGrainOverlay opacity={0.025} />
+        
         <Navbar />
         
         {/* Featured Movie Hero */}
@@ -159,10 +144,10 @@ const Index = () => {
           isLoading={trendingLoading}
         />
 
-        {/* Now Playing */}
-        <MovieGrid
+        {/* Now Playing - Horizontal Showcase */}
+        <HorizontalShowcase
           title="Now in Theaters"
-          subtitle="Currently showing in cinemas"
+          subtitle="Currently showing in cinemas — scroll to explore"
           movies={transformMovies(nowPlaying?.results?.slice(0, 14))}
           onMovieClick={handleMovieClick}
           isLoading={nowPlayingLoading}
@@ -183,7 +168,7 @@ const Index = () => {
                 { icon: Film, value: "750K+", label: "Films in database" },
                 { icon: Star, value: "12M+", label: "Ratings logged" },
                 { icon: Users, value: "2.5M+", label: "Active members" },
-              ].map((stat, index) => (
+              ].map((stat) => (
                 <motion.div
                   key={stat.label}
                   className="text-center"
@@ -248,7 +233,7 @@ const Index = () => {
           isLoading={tvPopularLoading}
         />
 
-        {/* CTA Section with 3D zoom effect */}
+        {/* CTA Section */}
         <section className="py-20 overflow-hidden">
           <div className="container mx-auto px-4">
             <motion.div 
@@ -286,7 +271,7 @@ const Index = () => {
                 transition={{ duration: 0.6, delay: 0.4 }}
               >
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
-                  <Button variant="cinema" size="xl" className="relative overflow-hidden group">
+                  <Button variant="cinema" size="xl" className="relative overflow-hidden group shimmer-btn">
                     <span className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/20 to-transparent group-hover:translate-x-full transition-transform duration-700" />
                     <span className="relative z-10">Get Started — It's Free</span>
                   </Button>
@@ -303,7 +288,6 @@ const Index = () => {
 
         <Footer />
         
-        {/* Trailer Modal */}
         <TrailerModal videoKey={trailerKey} onClose={() => setTrailerKey(null)} />
       </motion.div>
     </>
