@@ -100,6 +100,10 @@ const FeaturedMovie = ({ movie, onWatchTrailer }: FeaturedMovieProps) => {
         
         {/* Cinematic vignette */}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,hsl(var(--background)/0.4)_70%)]" />
+        
+        {/* Ambient glow edges */}
+        <div className="ambient-glow-left" />
+        <div className="ambient-glow-right" />
       </div>
 
       {/* Content */}
